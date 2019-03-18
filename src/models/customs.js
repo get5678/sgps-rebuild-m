@@ -1,7 +1,7 @@
-import { riderList, riderDetail } from '@/services/online';
+import { customsList, customsDetail, customsSearch } from '@/services/online';
 
 export default {
-  namespace: 'rider',
+  namespace: 'customs',
   state: {
     list: {},
     detail: {},
@@ -10,7 +10,7 @@ export default {
 
   effects: {
     // eslint-disable-next-line consistent-return
-    *riderList(
+    *customsList(
       {
         payload: { errorCallback, ...payload },
       },
@@ -22,9 +22,8 @@ export default {
           Reflect.deleteProperty(payload, key);
         }
       }
-
-      const response = yield call(riderList, payload);
-      if (Number(response.code) !== 100001) {
+      const response = yield call(customsList, payload);
+      if (Number(response.code) !== 1) {
         return errorCallback(response.msg);
       }
       yield put({
@@ -37,13 +36,13 @@ export default {
     },
 
     // eslint-disable-next-line consistent-return
-    *riderDetail(
+    *customsDetail(
       {
         payload: { errorCallback, number },
       },
       { put, call }
     ) {
-      const response = yield call(riderDetail, number);
+      const response = yield call(customsDetail, number);
       if (Number(response.code) !== 100001) {
         return errorCallback(response.msg);
       }
@@ -51,6 +50,26 @@ export default {
         type: 'changeOrderContent',
         payload: {
           attr: 'detail',
+          data: response.data,
+        },
+      });
+    },
+
+    // eslint-disable-next-line consistent-return
+    *customsSearch(
+      {
+        payload: { errorCallback, ...payload },
+      },
+      { put, call }
+    ) {
+      const response = yield call(customsSearch, payload);
+      if (Number(response.code) !== 1) {
+        return errorCallback(response.msg);
+      }
+      yield put({
+        type: 'changeOrderContent',
+        payload: {
+          attr: 'list',
           data: response.data,
         },
       });
@@ -77,6 +96,7 @@ export default {
         [attr]: data,
       };
     },
+
     updateStatus(state, { payload }) {
       return {
         ...state,

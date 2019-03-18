@@ -1,7 +1,7 @@
-import { riderList, riderDetail } from '@/services/online';
+import { shopList } from '@/services/online';
 
 export default {
-  namespace: 'rider',
+  namespace: 'shop',
   state: {
     list: {},
     detail: {},
@@ -10,7 +10,7 @@ export default {
 
   effects: {
     // eslint-disable-next-line consistent-return
-    *riderList(
+    *shopList(
       {
         payload: { errorCallback, ...payload },
       },
@@ -22,8 +22,7 @@ export default {
           Reflect.deleteProperty(payload, key);
         }
       }
-
-      const response = yield call(riderList, payload);
+      const response = yield call(shopList, payload);
       if (Number(response.code) !== 100001) {
         return errorCallback(response.msg);
       }
@@ -35,31 +34,10 @@ export default {
         },
       });
     },
-
-    // eslint-disable-next-line consistent-return
-    *riderDetail(
-      {
-        payload: { errorCallback, number },
-      },
-      { put, call }
-    ) {
-      const response = yield call(riderDetail, number);
-      if (Number(response.code) !== 100001) {
-        return errorCallback(response.msg);
-      }
-      yield put({
-        type: 'changeOrderContent',
-        payload: {
-          attr: 'detail',
-          data: response.data,
-        },
-      });
-    },
-
     // eslint-disable-next-line require-yield
-    *updateStatus({ payload }, { put }) {
+    *updataStatus({ payload }, { put }) {
       put({
-        type: 'updateStatus',
+        type: 'updataStatus',
         payload,
       });
     },
@@ -77,7 +55,7 @@ export default {
         [attr]: data,
       };
     },
-    updateStatus(state, { payload }) {
+    updataStatus(state, { payload }) {
       return {
         ...state,
         status: { ...state.status, ...payload },

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Card, Input, Select, Button, Upload, Icon, Modal } from 'antd';
+import { Form, Card, Input, Select, Button, Upload, Icon } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './Edit.less';
 
@@ -28,7 +28,7 @@ const submitFormLayout = {
 const uploadButton = (
   <div>
     <Icon type="plus" />
-    <div className="ant-upload-text">Upload</div>
+    <div className="ant-upload-text">上传图片</div>
   </div>
 );
 @connect(({ fruit, loading }) => ({
@@ -38,9 +38,10 @@ const uploadButton = (
 @Form.create()
 class RiderEdit extends PureComponent {
   state = {
-    smallPic: [],
-    largePic: [],
-    previewimg: '',
+    stuPic: [],
+    // eslint-disable-next-line react/no-unused-state
+    IDPic: [],
+    fileList: [],
   };
 
   componentDidMount() {}
@@ -50,20 +51,14 @@ class RiderEdit extends PureComponent {
     form.resetFields();
   };
 
-  handleChange = ({ smallPic }) => {
-    this.setState({ smallPic });
-  };
-
-  handlePreview = file => {
-    this.setState({
-      previewimg: file.url,
-    });
+  handleChange = ({ fileList }) => {
+    this.setState({ fileList });
   };
 
   render() {
     const { form } = this.props;
     const { getFieldDecorator } = form;
-    const { smallPic, largePic, previewimg } = this.state;
+    const { stuPic, fileList } = this.state;
     return (
       <PageHeaderWrapper title="骑手信息编辑">
         <Card className={styles.FormTable}>
@@ -121,26 +116,17 @@ class RiderEdit extends PureComponent {
               })(<Input placeholder="请输入骑手身份证号码" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="学生卡照片">
-              {getFieldDecorator('smallPic', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请上传学生卡照片',
-                  },
-                ],
-              })(
-                <Upload
-                  action="/online/api/upload"
-                  listType="picture-card"
-                  fileList={smallPic}
-                  onPreview={this.handlePreview}
-                >
-                  {smallPic.length >= 1 ? null : uploadButton}
-                </Upload>
-              )}
+              <Upload
+                action="//jsonplaceholder.typicode.com/posts/"
+                listType="picture-card"
+                fileList={stuPic}
+                onChange={this.handleChange}
+              >
+                {stuPic.length >= 2 ? null : uploadButton}
+              </Upload>
             </FormItem>
             <FormItem {...formItemLayout} label="身份证照片">
-              {getFieldDecorator('largePic', {
+              {getFieldDecorator('IDpic', {
                 rules: [
                   {
                     required: true,
@@ -148,8 +134,13 @@ class RiderEdit extends PureComponent {
                   },
                 ],
               })(
-                <Upload action="/online/api/upload" listType="picture-card" fileList={largePic}>
-                  {largePic.length >= 1 ? null : uploadButton}
+                <Upload
+                  action="//jsonplaceholder.typicode.com/posts/"
+                  listType="picture-card"
+                  fileList={fileList}
+                  onChange={this.handleChange}
+                >
+                  {fileList.length >= 1 ? null : uploadButton}
                 </Upload>
               )}
             </FormItem>

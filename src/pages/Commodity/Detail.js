@@ -8,15 +8,13 @@ import DescriptionList from '@/components/DescriptionList';
 import styles from './Detail.less';
 
 const { Description } = DescriptionList;
-
-@connect(({ rider, loading }) => ({
-  rider,
+@connect(({ commodity, loading }) => ({
+  commodity,
   loading,
 }))
-class RiderDetail extends PureComponent {
+class CommodityDetail extends PureComponent {
   state = {
-    smallPicture: false,
-    largePicture: false,
+    pics: false,
     fileList: [],
     previewVisible: false,
     previewImage: '',
@@ -30,7 +28,7 @@ class RiderDetail extends PureComponent {
       dispatch,
     } = this.props;
     dispatch({
-      type: 'rider/riderDetail',
+      type: 'commodity/commodityDetail',
       payload: {
         number,
         errorCallback(msg) {
@@ -43,12 +41,12 @@ class RiderDetail extends PureComponent {
   handleConfirm = () => {
     const {
       dispatch,
-      rider: {
+      commodity: {
         detail: { number },
       },
     } = this.props;
     dispatch({
-      type: 'rider/riderDelete',
+      type: 'commodity/commodityDelete',
       payload: {
         number,
         errorCallback(msg) {
@@ -56,7 +54,7 @@ class RiderDetail extends PureComponent {
         },
         successCallback() {
           message.success('删除成功');
-          dispatch(routerRedux.replace('/rider/list'));
+          dispatch(routerRedux.replace('/commodity/list'));
         },
       },
     });
@@ -64,9 +62,8 @@ class RiderDetail extends PureComponent {
 
   extra() {
     const {
-      rider: { detail },
+      commodity: { detail },
     } = this.props;
-    console.log(this.props);
     return (
       <Row>
         <Col xs={24} sm={24}>
@@ -74,7 +71,7 @@ class RiderDetail extends PureComponent {
           <div className={styles.heading}>{detail.status}</div>
         </Col>
         <Col xs={24} sm={24}>
-          <div className={styles.textSecondary}>入职时间</div>
+          <div className={styles.textSecondary}>入库时间</div>
           <div className={styles.heading} style={{ color: detail.time > 10 ? 'inherit' : 'red' }}>
             {detail.time}
           </div>
@@ -93,46 +90,25 @@ class RiderDetail extends PureComponent {
 
   description() {
     const {
-      rider: { detail },
+      commodity: { detail },
     } = this.props;
-    console.log(this.props);
-    const { smallPicture, largePicture } = this.state;
+    // console.log(this.props);
+    const { pics } = this.state;
     return (
       <DescriptionList className={styles.headerList} size="small" col="2">
-        <Description term="骑手名字">{detail.name}</Description>
-        <Description term="负责楼栋">{detail.house}</Description>
-        <Description term="骑手电话">{detail.phoneNumber}</Description>
-        <Description term="骑手身份证号码">{detail.ID}</Description>
-        <Description term="月收入">{detail.pay}</Description>
-        <Description term="月接单数目">{detail.page}</Description>
+        <Description term="商品名字">{detail.name}</Description>
         <Description term="更新时间">
           {moment(detail.updateTime).format('YYYY-MM-DD HH:mm:ss')}
         </Description>
-        <Description term="学生证图片" sm={24} md={24}>
-          {this.renderShowPicture('smallPicture')}
-          <img
-            style={{ display: smallPicture ? 'block' : 'none' }}
-            src={detail.smallPicture}
-            alt="骑手学生证图片"
-          />
+        <Description term="商品图片" sm={24} md={24}>
+          {this.renderShowPicture('pics')}
+          <img style={{ display: pics ? 'block' : 'none' }} src={detail.pics} alt="商品图片" />
         </Description>
-        <Description term="身份证图片" sm={24} md={24}>
-          {this.renderShowPicture('largePicture')}
-          <img
-            style={{ display: largePicture ? 'block' : 'none' }}
-            src={detail.largePicture}
-            alt="骑手身份证图片"
-          />
-        </Description>
-        <Description term="个人介绍">{detail.introduce}</Description>
+
+        <Description term="商品介绍">{detail.introduce}</Description>
       </DescriptionList>
     );
   }
-
-  // eslint-disable-next-line class-methods-use-this
-  /* handleCancel() {
-    message.success('成功取消删除此骑手信息');
-  } */
 
   renderShowPicture(which) {
     // eslint-disable-next-line react/destructuring-assignment
@@ -151,33 +127,21 @@ class RiderDetail extends PureComponent {
   }
 
   // eslint-disable-next-line react/sort-comp
-  handleCancel = () => {
-    this.setState({ previewVisible: false });
-  };
-
-  handlePreview = file => {
-    this.setState({
-      previewImage: file.url || file.thumbUrl,
-      previewVisible: true,
-    });
-  };
-
   handleChange = ({ fileList }) => {
     this.setState({ fileList });
   };
 
   render() {
     const {
-      rider: { detail },
+      commodity: { detail },
     } = this.props;
-
     const action = (
       <Fragment>
-        <Link style={{ marginRight: '10px' }} to={`/rider/edit/${detail.number}`}>
+        <Link style={{ marginRight: '10px' }} to={`/commodity/edit/${detail.number}`}>
           <Button type="primary">编辑</Button>
         </Link>
         <Popconfirm
-          title="你确认要删除此骑手信息吗？"
+          title="你确认要删除此商品信息吗？"
           onConfirm={this.handleConfirm}
           onCancel={this.handleCancel}
           okText="确认"
@@ -190,17 +154,13 @@ class RiderDetail extends PureComponent {
 
     return (
       <PageHeaderWrapper
-        title={`骑手编号：${detail.ID}`}
-        logo={
-          <img alt="" src="https://gw.alipayobjects.com/zos/rmsportal/nxkuOJlFJuAUhzlMTCEe.png" />
-        }
+        title={`商品编号: ${detail.number}`}
         action={action}
         content={this.description()}
-        // eslint-disable-next-line react/jsx-indent-props
         extraContent={this.extra()}
       />
     );
   }
 }
 
-export default RiderDetail;
+export default CommodityDetail;

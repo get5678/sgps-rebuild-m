@@ -184,7 +184,7 @@ class Register extends Component {
         </h3>
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
-            {getFieldDecorator('mail', {
+            {getFieldDecorator('name', {
               rules: [
                 {
                   required: true,

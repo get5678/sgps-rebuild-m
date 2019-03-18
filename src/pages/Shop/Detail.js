@@ -9,14 +9,14 @@ import styles from './Detail.less';
 
 const { Description } = DescriptionList;
 
-@connect(({ rider, loading }) => ({
-  rider,
+@connect(({ shop, loading }) => ({
+  shop,
   loading,
 }))
-class RiderDetail extends PureComponent {
+class ShopDetail extends PureComponent {
   state = {
-    smallPicture: false,
-    largePicture: false,
+    IDPic: false,
+
     fileList: [],
     previewVisible: false,
     previewImage: '',
@@ -30,7 +30,7 @@ class RiderDetail extends PureComponent {
       dispatch,
     } = this.props;
     dispatch({
-      type: 'rider/riderDetail',
+      type: 'shop/shopDetail',
       payload: {
         number,
         errorCallback(msg) {
@@ -43,12 +43,12 @@ class RiderDetail extends PureComponent {
   handleConfirm = () => {
     const {
       dispatch,
-      rider: {
+      shop: {
         detail: { number },
       },
     } = this.props;
     dispatch({
-      type: 'rider/riderDelete',
+      type: 'shop/shopDelete',
       payload: {
         number,
         errorCallback(msg) {
@@ -56,7 +56,7 @@ class RiderDetail extends PureComponent {
         },
         successCallback() {
           message.success('删除成功');
-          dispatch(routerRedux.replace('/rider/list'));
+          dispatch(routerRedux.replace('/shop/list'));
         },
       },
     });
@@ -64,14 +64,13 @@ class RiderDetail extends PureComponent {
 
   extra() {
     const {
-      rider: { detail },
+      shop: { detail },
     } = this.props;
-    console.log(this.props);
     return (
       <Row>
         <Col xs={24} sm={24}>
           <div className={styles.textSecondary}>状态</div>
-          <div className={styles.heading}>{detail.status}</div>
+          <div className={styles.heading}>{detail.status}ss</div>
         </Col>
         <Col xs={24} sm={24}>
           <div className={styles.textSecondary}>入职时间</div>
@@ -93,38 +92,30 @@ class RiderDetail extends PureComponent {
 
   description() {
     const {
-      rider: { detail },
+      shop: { detail },
     } = this.props;
-    console.log(this.props);
-    const { smallPicture, largePicture } = this.state;
+    const { IDPic } = this.state;
     return (
       <DescriptionList className={styles.headerList} size="small" col="2">
-        <Description term="骑手名字">{detail.name}</Description>
-        <Description term="负责楼栋">{detail.house}</Description>
-        <Description term="骑手电话">{detail.phoneNumber}</Description>
-        <Description term="骑手身份证号码">{detail.ID}</Description>
+        <Description term="店铺名称">{detail.name}</Description>
+        <Description term="店铺地址">{detail.place}</Description>
+        <Description term="店铺电话">{detail.phoneNumber}</Description>
+        <Description term="老板身份证号码">{detail.ID}</Description>
         <Description term="月收入">{detail.pay}</Description>
         <Description term="月接单数目">{detail.page}</Description>
         <Description term="更新时间">
           {moment(detail.updateTime).format('YYYY-MM-DD HH:mm:ss')}
         </Description>
-        <Description term="学生证图片" sm={24} md={24}>
-          {this.renderShowPicture('smallPicture')}
+        <Description term="老板身份证图片" sm={24} md={24}>
+          {this.renderShowPicture('IDPic')}
           <img
-            style={{ display: smallPicture ? 'block' : 'none' }}
-            src={detail.smallPicture}
-            alt="骑手学生证图片"
+            style={{ display: IDPic ? 'block' : 'none' }}
+            src={detail.IDPic}
+            alt="老板身份证图片"
           />
         </Description>
-        <Description term="身份证图片" sm={24} md={24}>
-          {this.renderShowPicture('largePicture')}
-          <img
-            style={{ display: largePicture ? 'block' : 'none' }}
-            src={detail.largePicture}
-            alt="骑手身份证图片"
-          />
-        </Description>
-        <Description term="个人介绍">{detail.introduce}</Description>
+
+        <Description term="店铺介绍">{detail.introduce}</Description>
       </DescriptionList>
     );
   }
@@ -168,16 +159,17 @@ class RiderDetail extends PureComponent {
 
   render() {
     const {
-      rider: { detail },
+      shop: { detail },
     } = this.props;
+    // const { previewVisible, previewImage, fileList } = this.state;
 
     const action = (
       <Fragment>
-        <Link style={{ marginRight: '10px' }} to={`/rider/edit/${detail.number}`}>
+        <Link style={{ marginRight: '10px' }} to={`/shop/edit/${detail.number}`}>
           <Button type="primary">编辑</Button>
         </Link>
         <Popconfirm
-          title="你确认要删除此骑手信息吗？"
+          title="你确认要删除此店铺信息吗？"
           onConfirm={this.handleConfirm}
           onCancel={this.handleCancel}
           okText="确认"
@@ -190,17 +182,16 @@ class RiderDetail extends PureComponent {
 
     return (
       <PageHeaderWrapper
-        title={`骑手编号：${detail.ID}`}
+        title="店铺编号：65456485645615"
         logo={
           <img alt="" src="https://gw.alipayobjects.com/zos/rmsportal/nxkuOJlFJuAUhzlMTCEe.png" />
         }
         action={action}
         content={this.description()}
-        // eslint-disable-next-line react/jsx-indent-props
         extraContent={this.extra()}
       />
     );
   }
 }
 
-export default RiderDetail;
+export default ShopDetail;

@@ -1,9 +1,10 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
+// import { fakeAccountLogin } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
+import { manageIdentify } from '@/services/online';
 
 export default {
   namespace: 'login',
@@ -13,12 +14,28 @@ export default {
   },
 
   effects: {
+    // *loginIdentify({ errorCa1llback, payload }, { put, call }) {
+    //   const res = yield call(manageIdentify, payload);
+    //   if (Number(res.code) !== 1) {
+    //     return errorCallback(res.msg);
+    //   }
+    //   yield put({
+    //     type: 'changeLoginStatus',
+    //     payload: res,
+    //   });
+    // },
+
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      // const response = yield call(fakeAccountLogin, payload);
+      // console.log(response,'denglu')
+      // console.log(payload, '232');
+      const response = yield call(manageIdentify, payload);
+      // console.log(response, 'yanzhengma');
       yield put({
         type: 'changeLoginStatus',
         payload: response,
       });
+
       // Login successfully
       if (response.status === 'ok') {
         reloadAuthorized();
@@ -39,10 +56,6 @@ export default {
         }
         yield put(routerRedux.replace(redirect || '/'));
       }
-    },
-
-    *getCaptcha({ payload }, { call }) {
-      yield call(getFakeCaptcha, payload);
     },
 
     *logout(_, { put }) {

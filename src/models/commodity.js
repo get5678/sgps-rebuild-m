@@ -1,20 +1,19 @@
-import { riderList, riderDetail } from '@/services/online';
+import { commodityList, commodityDetail } from '@/services/online';
 
 export default {
-  namespace: 'rider',
+  namespace: 'commodity',
   state: {
     list: {},
     detail: {},
-    status: {},
   },
 
   effects: {
     // eslint-disable-next-line consistent-return
-    *riderList(
+    *commodityList(
       {
         payload: { errorCallback, ...payload },
       },
-      { put, call }
+      { call, put }
     ) {
       // eslint-disable-next-line no-restricted-syntax
       for (const [key, val] of Object.entries(payload)) {
@@ -22,51 +21,41 @@ export default {
           Reflect.deleteProperty(payload, key);
         }
       }
-
-      const response = yield call(riderList, payload);
-      if (Number(response.code) !== 100001) {
+      const response = yield call(commodityList, payload);
+      if (Number(response.code) !== 1) {
         return errorCallback(response.msg);
       }
       yield put({
-        type: 'changeOrderContent',
+        type: 'changeCommodityContent',
         payload: {
           attr: 'list',
           data: response.data,
         },
       });
     },
-
     // eslint-disable-next-line consistent-return
-    *riderDetail(
+    *commodityDetail(
       {
         payload: { errorCallback, number },
       },
       { put, call }
     ) {
-      const response = yield call(riderDetail, number);
-      if (Number(response.code) !== 100001) {
+      const response = yield call(commodityDetail, number);
+      if (Number(response.code) !== 1) {
         return errorCallback(response.msg);
       }
       yield put({
-        type: 'changeOrderContent',
+        type: 'changeCommodityContent',
         payload: {
           attr: 'detail',
           data: response.data,
         },
       });
     },
-
-    // eslint-disable-next-line require-yield
-    *updateStatus({ payload }, { put }) {
-      put({
-        type: 'updateStatus',
-        payload,
-      });
-    },
   },
 
   reducers: {
-    changeOrderContent(
+    changeCommodityContent(
       state,
       {
         payload: { attr, data },
@@ -77,6 +66,7 @@ export default {
         [attr]: data,
       };
     },
+
     updateStatus(state, { payload }) {
       return {
         ...state,

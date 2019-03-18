@@ -1,4 +1,5 @@
 import { query as queryUsers, queryCurrent } from '@/services/user';
+import { manageIdentify } from '@/services/online';
 
 export default {
   namespace: 'user',
@@ -9,6 +10,21 @@ export default {
   },
 
   effects: {
+    *login(
+      {
+        payload: { errorCallback, ...payload },
+      },
+      { put, call }
+    ) {
+      const response = yield call(manageIdentify, payload);
+      // console.log(response);
+
+      yield put({
+        type: 'changeNotifyCount',
+        payload: response.data,
+      });
+    },
+
     *fetch(_, { call, put }) {
       const response = yield call(queryUsers);
       yield put({

@@ -1,6 +1,7 @@
 import { fakeRegister } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
+// import { manageIdentify } from '@/services/online';
 
 export default {
   namespace: 'register',
@@ -17,6 +18,8 @@ export default {
         payload: response,
       });
     },
+
+    // *login({}, { put, call }) {},
   },
 
   reducers: {
