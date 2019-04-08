@@ -39,10 +39,18 @@ export default {
   'menu.account.trigger': '触发报错',
   'menu.account.logout': '退出登录',
 
-  'menu.commodity': '商品管理',
-  'menu.commodity.commoditylist': '商品列表',
-  'menu.commodity.commoditydetail': '商品详情',
-  'menu.commodity.commodityedit': '商品编辑',
+  'menu.commodity': '商品种类管理',
+  'menu.commodity.commoditylist': '商品种类列表',
+  'menu.commodity.commoditydetail': '商品种类详情',
+  'menu.commodity.commodityedit': '商品种类编辑',
+
+  'menu.products': '商品管理',
+  'menu.products.productslist': '商品列表',
+  'menu.products.productsdetail': '商品详情',
+  'menu.products.productsedit': '商品编辑',
+
+  'menu.order': '订单管理',
+  'menu.order.orderlist': '订单列表',
 
   'menu.rider': '骑手管理',
   'menu.rider.riderlist': '骑手列表',
@@ -64,7 +72,7 @@ export default {
   'menu.coupons.couponsdetail': '优惠券详情',
   'menu.coupons.couponsedit': '优惠券编辑',
 
-  'menu.building': '楼栋管理',
-  'menu.building.buildinglist': '楼栋列表',
-  'menu.building.buildingedit': '楼栋编辑',
+  'menu.buildings': '楼栋管理',
+  'menu.buildings.buildingslist': '楼栋列表',
+  'menu.buildings.buildingsedit': '楼栋编辑',
 };

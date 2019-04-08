@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Card, Input, Button, Upload, Icon } from 'antd';
+import { routerRedux } from 'dva/router';
+import { Form, Card, Input, Button, Select, message, InputNumber } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './Edit.less';
 
 const FormItem = Form.Item;
-const { TextArea } = Input;
+const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
@@ -24,59 +25,102 @@ const submitFormLayout = {
     sm: { span: 10, offset: 7 },
   },
 };
-const uploadButton = (
-  <div>
-    <Icon type="plus" />
-    <div className="ant-upload-text">Upload</div>
-  </div>
-);
-
-@connect(({ fruit, loading }) => ({
-  fruit,
+@connect(({ customs, loading }) => ({
+  customs,
   loading,
 }))
 @Form.create()
 class UserManageEdit extends PureComponent {
-  state = {
-    smallPic: [],
-  };
+  componentDidMount() {
+    const {
+      match: { params },
+      dispatch,
+    } = this.props;
+    dispatch({
+      type: 'customs/customsDetail',
+      payload: {
+        params,
+      },
+    });
+  }
 
   handleReset = () => {
     const { form } = this.props;
     form.resetFields();
   };
 
+  handleEdit = e => {
+    const {
+      dispatch,
+      form: { validateFields },
+      customs: { detail },
+    } = this.props;
+    e.preventDefault();
+    validateFields((err, values) => {
+      // eslint-disable-next-line no-param-reassign
+      // values.building = undefined;
+      if (detail.user_phone === values.phone) {
+        // eslint-disable-next-line no-param-reassign
+        values.phone = undefined;
+      }
+      if (!err) {
+        dispatch({
+          type: 'customs/customsEdit',
+          payload: {
+            values,
+            errorCallback(msg) {
+              message.error(msg);
+            },
+            successCallback() {
+              message.success('修改成功');
+              dispatch(routerRedux.replace('/customs/list'));
+            },
+          },
+        });
+      }
+    });
+  };
+
   render() {
     const {
       form: { getFieldDecorator },
+      customs: { detail },
     } = this.props;
-    const { smallPic } = this.state;
-
     return (
       <PageHeaderWrapper title="用户信息编辑">
         <Card className={styles.FormTable}>
-          <Form style={{ marginTop: 8 }}>
+          <Form style={{ marginTop: 8 }} onSubmit={this.handleEdit}>
+            <FormItem {...formItemLayout} label="用户编号">
+              {getFieldDecorator('id', {
+                initialValue: detail.user_id,
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入用户编号',
+                  },
+                ],
+              })(<InputNumber disabled />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="用户姓名">
               {getFieldDecorator('name', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入用户姓名',
-                  },
-                ],
+                initialValue: detail.user_name,
               })(<Input placeholder="请输入用户姓名" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="选择用户所在楼栋">
-              {getFieldDecorator('category', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择用户所在楼栋',
-                  },
-                ],
+            <FormItem {...formItemLayout} label="用户性别">
+              {getFieldDecorator('sex', {
+                initialValue: detail.user_sex,
+              })(
+                <Select>
+                  <Option value={0}>男</Option>
+                  <Option value={1}>女</Option>
+                </Select>
+              )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="用户所在楼栋">
+              {getFieldDecorator('building', {
+                initialValue: detail.building_name,
               })(
                 <Input
-                  placeholder="请选择楼栋"
                   style={{
                     margin: '8px 0',
                   }}
@@ -84,37 +128,14 @@ class UserManageEdit extends PureComponent {
               )}
             </FormItem>
             <FormItem {...formItemLayout} label="用户电话">
-              {getFieldDecorator('phonenumber', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入用户电话',
-                  },
-                ],
+              {getFieldDecorator('phone', {
+                initialValue: detail.user_phone,
               })(<Input placeholder="请输入用户电话" />)}
             </FormItem>
 
-            <FormItem {...formItemLayout} label="用户头像">
-              {getFieldDecorator('smallPic', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请上传用户头像',
-                  },
-                ],
-              })(
-                <Upload action="/online/api/upload" listType="picture-card" fileList={smallPic}>
-                  {smallPic.length >= 1 ? null : uploadButton}
-                </Upload>
-              )}
-            </FormItem>
-
-            <FormItem {...formItemLayout} label="个人介绍">
-              {getFieldDecorator('detail')(<TextArea placeholder="请输入个人介绍" />)}
-            </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
               <Button type="primary" htmlType="submit" loading={false}>
-                提交
+                修改
               </Button>
               <Button htmlType="reset" style={{ marginLeft: 8 }} onClick={this.handleReset}>
                 重置

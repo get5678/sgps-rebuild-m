@@ -1,4 +1,4 @@
-import { riderList, riderDetail } from '@/services/online';
+import { riderList, riderSreach, riderDelect, riderRegiste, riderEdit } from '@/services/online';
 
 export default {
   namespace: 'rider',
@@ -24,7 +24,7 @@ export default {
       }
 
       const response = yield call(riderList, payload);
-      if (Number(response.code) !== 100001) {
+      if (Number(response.code) !== 1) {
         return errorCallback(response.msg);
       }
       yield put({
@@ -39,21 +39,115 @@ export default {
     // eslint-disable-next-line consistent-return
     *riderDetail(
       {
-        payload: { errorCallback, number },
+        payload: { errorCallback, number, current },
       },
       { put, call }
     ) {
-      const response = yield call(riderDetail, number);
-      if (Number(response.code) !== 100001) {
-        return errorCallback(response.msg);
+      const response = yield call(riderList, { current });
+      const {
+        data: { list },
+      } = response;
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        for (let i = 0; i < list.length; i += 1) {
+          if (list[i].rider_id === Number(number)) {
+            yield put({
+              type: 'changeOrderContent',
+              payload: {
+                attr: 'detail',
+                data: list[i],
+              },
+            });
+          }
+        }
+      }
+    },
+
+    *riderEdit(
+      {
+        payload: { errorCallback, successCallback, values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(riderEdit, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        successCallback();
+        yield put({
+          type: 'changeOrderContent',
+          payload: {
+            attr: 'list',
+            data: response.data,
+          },
+        });
+      }
+    },
+
+    *riderSreach(
+      {
+        payload: { errorCallback, values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(riderSreach, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
       }
       yield put({
         type: 'changeOrderContent',
         payload: {
-          attr: 'detail',
+          attr: 'list',
           data: response.data,
         },
       });
+    },
+
+    *riderDelect(
+      {
+        payload: { errorCallback, successCallback, id },
+      },
+      { put, call }
+    ) {
+      const response = yield call(riderDelect, { id });
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        successCallback();
+        yield put({
+          type: 'changeOrderContent',
+          payload: {
+            attr: 'list',
+            data: response.data,
+          },
+        });
+      }
+    },
+
+    *riderRegiste(
+      {
+        payload: { errorCallback, successCallback, values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(riderRegiste, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        successCallback();
+        yield put({
+          type: 'changeOrderContent',
+          payload: {
+            attr: 'list',
+            data: response.data,
+          },
+        });
+      }
     },
 
     // eslint-disable-next-line require-yield

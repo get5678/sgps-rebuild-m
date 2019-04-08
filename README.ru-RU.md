@@ -71,8 +71,8 @@ UI-решение "из коробки" для корпоративных при
   - 500
 - User
   - Login
-  - Register
-  - Register Result
+  - register
+  - register Result
 ```
 
 ## Использование

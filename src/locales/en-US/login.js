@@ -10,7 +10,7 @@ export default {
   'app.login.sign-in-with': 'Sign in with',
   'app.login.signup': 'Sign up',
   'app.login.login': 'Login',
-  'app.register.register': 'Register',
+  'app.register.register': 'register',
   'app.register.get-verification-code': 'Get code',
   'app.register.sign-in': 'Already have an account?',
   'app.register-result.msg': 'Account：registered at {email}',

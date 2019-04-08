@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Card, Input, Select, Button, Upload, Icon } from 'antd';
+import { routerRedux } from 'dva/router';
+import { Form, Card, Input, Select, Button, InputNumber, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './Edit.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { TextArea } = Input;
 
 const formItemLayout = {
   labelCol: {
@@ -25,46 +25,145 @@ const submitFormLayout = {
     sm: { span: 10, offset: 7 },
   },
 };
-const uploadButton = (
-  <div>
-    <Icon type="plus" />
-    <div className="ant-upload-text">上传图片</div>
-  </div>
-);
-@connect(({ fruit, loading }) => ({
-  fruit,
+@connect(({ rider, loading }) => ({
+  rider,
   loading,
 }))
 @Form.create()
 class RiderEdit extends PureComponent {
   state = {
-    stuPic: [],
-    // eslint-disable-next-line react/no-unused-state
-    IDPic: [],
-    fileList: [],
+    addIf: false,
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    const {
+      match: {
+        params: { number, current },
+      },
+      dispatch,
+    } = this.props;
+    const reg = /^[\d]+$/;
+    if (!reg.test(number)) {
+      this.setState({
+        addIf: true,
+      });
+    }
+    if (reg.test(number)) {
+      dispatch({
+        type: 'rider/riderDetail',
+        payload: {
+          number,
+          current,
+        },
+      });
+    }
+  }
+
+  handleEdit = () => {
+    const {
+      dispatch,
+      form: { validateFields },
+      rider: { detail },
+    } = this.props;
+    validateFields((err, values) => {
+      if (!err) {
+        if (detail.rider_name === values.name) {
+          // eslint-disable-next-line no-param-reassign
+          values.name = undefined;
+        }
+        if (detail.rider_phone === values.phone) {
+          // eslint-disable-next-line no-param-reassign
+          values.phone = undefined;
+        }
+        dispatch({
+          type: 'rider/riderEdit',
+          payload: {
+            values,
+            errorCallback(msg) {
+              message.error(msg);
+            },
+            successCallback() {
+              message.success('修改成功');
+              dispatch(routerRedux.replace('/rider/list'));
+            },
+          },
+        });
+      }
+    });
+  };
 
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
   };
 
-  handleChange = ({ fileList }) => {
-    this.setState({ fileList });
+  handleSubmit = e => {
+    const { dispatch, form } = this.props;
+    e.preventDefault();
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'rider/riderRegiste',
+          payload: {
+            values,
+            errorCallback(msg) {
+              message.error(msg);
+            },
+            successCallback() {
+              message.success('添加成功');
+              dispatch(routerRedux.replace('/rider/list'));
+            },
+          },
+        });
+      }
+    });
+  };
+
+  renderAddButton = () => {
+    return (
+      <Button type="primary" htmlType="submit">
+        添加
+      </Button>
+    );
+  };
+
+  renderEditButton = () => {
+    return (
+      <Button type="primary" onClick={this.handleEdit}>
+        修改
+      </Button>
+    );
+  };
+
+  renderButton = () => {
+    const { addIf } = this.state;
+    return addIf ? this.renderAddButton() : this.renderEditButton();
   };
 
   render() {
-    const { form } = this.props;
-    const { getFieldDecorator } = form;
-    const { stuPic, fileList } = this.state;
+    const {
+      form: { getFieldDecorator },
+      rider: { detail },
+    } = this.props;
+    const { addIf } = this.state;
     return (
       <PageHeaderWrapper title="骑手信息编辑">
         <Card className={styles.FormTable}>
-          <Form style={{ marginTop: 8 }}>
+          <Form style={{ marginTop: 8 }} onSubmit={this.handleSubmit}>
+            <FormItem {...formItemLayout} label="骑手编号">
+              {getFieldDecorator('id', {
+                initialValue: addIf ? '' : detail.rider_id,
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入骑手编号',
+                  },
+                ],
+              })(<InputNumber disabled={!addIf} />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="骑手名字">
               {getFieldDecorator('name', {
+                initialValue: addIf ? '' : detail.rider_name,
                 rules: [
                   {
                     required: true,
@@ -73,30 +172,20 @@ class RiderEdit extends PureComponent {
                 ],
               })(<Input placeholder="请输入骑手名" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="选择楼栋">
-              {getFieldDecorator('category', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择楼栋',
-                  },
-                ],
+            <FormItem {...formItemLayout} label="选择骑手性别">
+              {getFieldDecorator('sex', {
+                initialValue: addIf ? '' : detail.rider_sex,
               })(
-                <Select
-                  mode="multiple"
-                  placeholder="请选择楼栋"
-                  style={{
-                    margin: '8px 0',
-                  }}
-                >
-                  <Option value="1">1</Option>
-                  <Option value="2">2</Option>
-                  <Option value="3">3</Option>
+                <Select>
+                  <Option value={0}>男</Option>
+                  <Option value={1}>女</Option>
+                  <Option value={2}>不详</Option>
                 </Select>
               )}
             </FormItem>
             <FormItem {...formItemLayout} label="骑手电话">
-              {getFieldDecorator('phonenumber', {
+              {getFieldDecorator('phone', {
+                initialValue: addIf ? '' : detail.rider_phone,
                 rules: [
                   {
                     required: true,
@@ -106,7 +195,8 @@ class RiderEdit extends PureComponent {
               })(<Input placeholder="请输入骑手电话" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="骑手身份证号码">
-              {getFieldDecorator('ID', {
+              {getFieldDecorator('identity_number', {
+                initialValue: addIf ? '' : detail.rider_identity_number,
                 rules: [
                   {
                     required: true,
@@ -115,42 +205,24 @@ class RiderEdit extends PureComponent {
                 ],
               })(<Input placeholder="请输入骑手身份证号码" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="学生卡照片">
-              <Upload
-                action="//jsonplaceholder.typicode.com/posts/"
-                listType="picture-card"
-                fileList={stuPic}
-                onChange={this.handleChange}
-              >
-                {stuPic.length >= 2 ? null : uploadButton}
-              </Upload>
+            <FormItem {...formItemLayout} label="负责楼栋">
+              {getFieldDecorator('building_id', {
+                initialValue: addIf ? '' : detail.building_id,
+              })(<InputNumber />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="身份证照片">
-              {getFieldDecorator('IDpic', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请上传身份证照片',
-                  },
-                ],
+
+            <FormItem {...formItemLayout} label="骑手状态">
+              {getFieldDecorator('state', {
+                initialValue: addIf ? '' : detail.rider_state,
               })(
-                <Upload
-                  action="//jsonplaceholder.typicode.com/posts/"
-                  listType="picture-card"
-                  fileList={fileList}
-                  onChange={this.handleChange}
-                >
-                  {fileList.length >= 1 ? null : uploadButton}
-                </Upload>
+                <Select>
+                  <Option value={0}>冻结</Option>
+                  <Option value={1}>正常</Option>
+                </Select>
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label="个人介绍">
-              {getFieldDecorator('detail')(<TextArea placeholder="请输入个人介绍" />)}
-            </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
-              <Button type="primary" htmlType="submit" loading={false}>
-                提交
-              </Button>
+              {this.renderButton()}
               <Button htmlType="reset" style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
               </Button>

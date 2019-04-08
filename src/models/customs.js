@@ -1,4 +1,4 @@
-import { customsList, customsDetail, customsSearch } from '@/services/online';
+import { customsList, customsSearch, customsEdit } from '@/services/online';
 
 export default {
   namespace: 'customs',
@@ -38,21 +38,42 @@ export default {
     // eslint-disable-next-line consistent-return
     *customsDetail(
       {
-        payload: { errorCallback, number },
+        payload: { errorCallback, params },
       },
       { put, call }
     ) {
-      const response = yield call(customsDetail, number);
-      if (Number(response.code) !== 100001) {
+      const res = yield call(customsList);
+      const {
+        data: { pageSize },
+      } = res;
+      const current = Math.ceil(Number(params.number) / pageSize);
+      const response = yield call(customsList, { current });
+      const {
+        data: { list },
+      } = response;
+      if (Number(response.code) !== 1) {
         return errorCallback(response.msg);
       }
-      yield put({
-        type: 'changeOrderContent',
-        payload: {
-          attr: 'detail',
-          data: response.data,
-        },
-      });
+      if (Number(response.code) === 1) {
+        if (params.building === 'null') {
+          // eslint-disable-next-line no-param-reassign
+          params.building = null;
+        }
+        for (let i = 0; i < list.length; i += 1) {
+          if (
+            list[i].user_id === Number(params.number) &&
+            list[i].building_name === params.building
+          ) {
+            yield put({
+              type: 'changeOrderContent',
+              payload: {
+                attr: 'detail',
+                data: list[i],
+              },
+            });
+          }
+        }
+      }
     },
 
     // eslint-disable-next-line consistent-return
@@ -73,6 +94,28 @@ export default {
           data: response.data,
         },
       });
+    },
+
+    *customsEdit(
+      {
+        payload: { errorCallback, successCallback, values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(customsEdit, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        successCallback();
+        yield put({
+          type: 'changeOrderContent',
+          payload: {
+            attr: 'detail',
+            data: response.data,
+          },
+        });
+      }
     },
 
     // eslint-disable-next-line require-yield

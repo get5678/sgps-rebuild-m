@@ -69,8 +69,18 @@ class HeaderView extends Component {
       return;
     }
     if (key === 'logout') {
+      console.log(this.props, 'propslogout');
+      message.error('dsdsds');
       dispatch({
         type: 'login/logout',
+        payload: {
+          errorCallback(msg) {
+            message.error(msg);
+          },
+          successCallback() {
+            message.success('退出登录');
+          },
+        },
       });
     }
   };

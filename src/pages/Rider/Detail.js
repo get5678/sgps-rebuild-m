@@ -66,7 +66,6 @@ class RiderDetail extends PureComponent {
     const {
       rider: { detail },
     } = this.props;
-    console.log(this.props);
     return (
       <Row>
         <Col xs={24} sm={24}>
@@ -95,7 +94,6 @@ class RiderDetail extends PureComponent {
     const {
       rider: { detail },
     } = this.props;
-    console.log(this.props);
     const { smallPicture, largePicture } = this.state;
     return (
       <DescriptionList className={styles.headerList} size="small" col="2">
@@ -128,11 +126,6 @@ class RiderDetail extends PureComponent {
       </DescriptionList>
     );
   }
-
-  // eslint-disable-next-line class-methods-use-this
-  /* handleCancel() {
-    message.success('成功取消删除此骑手信息');
-  } */
 
   renderShowPicture(which) {
     // eslint-disable-next-line react/destructuring-assignment

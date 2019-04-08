@@ -1,7 +1,7 @@
 const shopList = (req, res) => {
   const { current = 1, pageSize = 10 } = req.query;
   const names = new Array(pageSize);
-  const total = Math.ceil(Math.random() * 100);
+  const total = 100;
   const place = ['8教', '15栋小商店', '9栋小商店', '老仙们', '信息澳门'];
   const name = ['重邮小商店', '新世纪', '家乐福', '永辉', '重客隆', '沃尔玛'];
   const phonenumber = 67619079;

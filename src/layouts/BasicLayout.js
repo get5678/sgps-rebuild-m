@@ -50,6 +50,7 @@ class BasicLayout extends React.Component {
       dispatch,
       route: { routes, authority },
     } = this.props;
+    // console.log(this.props, "routes")
     dispatch({
       type: 'user/fetchCurrent',
     });
@@ -125,8 +126,8 @@ class BasicLayout extends React.Component {
         )}
         <Layout
           style={{
-            ...this.getLayoutStyle(),
             minHeight: '100vh',
+            ...this.getLayoutStyle(),
           }}
         >
           <Header

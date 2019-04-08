@@ -1,34 +1,62 @@
-import { fakeRegister } from '@/services/api';
-import { setAuthority } from '@/utils/authority';
-import { reloadAuthorized } from '@/utils/Authorized';
-// import { manageIdentify } from '@/services/online';
+import { getCaptcha, manageRegiste } from '@/services/online';
 
 export default {
   namespace: 'register',
-
   state: {
-    status: undefined,
+    status: {},
+    imgs: ' ',
   },
 
   effects: {
-    *submit({ payload }, { call, put }) {
-      const response = yield call(fakeRegister, payload);
+    *getCaptcha(
+      {
+        payload: { errorCallback, values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(getCaptcha, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
       yield put({
-        type: 'registerHandle',
-        payload: response,
+        type: 'changeOrderContent',
+        payload: {
+          attr: 'imgs',
+          data: response.data,
+        },
       });
     },
 
-    // *login({}, { put, call }) {},
+    *manageRegiste(
+      {
+        payload: { errorCallback, successCallback, ...values },
+      },
+      { put, call }
+    ) {
+      const response = yield call(manageRegiste, values);
+      if (Number(response.code) !== 1) {
+        errorCallback(response.msg);
+      }
+      if (Number(response.code) === 1) {
+        successCallback();
+        yield put({
+          type: 'up',
+          payload: response.data,
+        });
+      }
+    },
   },
 
   reducers: {
-    registerHandle(state, { payload }) {
-      setAuthority('user');
-      reloadAuthorized();
+    changeOrderContent(
+      state,
+      {
+        payload: { attr, data },
+      }
+    ) {
       return {
         ...state,
-        status: payload.status,
+        [attr]: data,
       };
     },
   },

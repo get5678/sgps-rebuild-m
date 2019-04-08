@@ -18,7 +18,7 @@ const riderList = (req, res) => {
     };
   }
   const response = {
-    code: 100001,
+    code: 1,
     msg: '请求成功',
     data: {
       total,
@@ -37,7 +37,7 @@ const riderDetail = (req, res) => {
   const page = Math.ceil(Math.random() * 10);
 
   const response = {
-    code: 100001,
+    code: 1,
     msg: '请求成功',
     data: {
       number,

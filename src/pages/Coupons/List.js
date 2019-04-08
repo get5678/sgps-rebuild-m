@@ -246,22 +246,20 @@ class CouponsList extends PureComponent {
       },
       {
         title: '使用范围',
-        dataIndex: 'validityRange',
+        dataIndex: 'coupons_fill',
+        render: val => <span>满{val}元可用</span>,
       },
       {
         title: '有效期',
-        render: val =>
-          `${moment(val.validityTimeB).format('YYYY-MM-DD')}-${moment(val.validityTimeE).format(
-            'YYYY-MM-DD'
-          )}`,
+        render: val => moment(val.limited_time).format('YYYY-MM-DD'),
       },
       {
         title: '操作',
         render: val => (
           <Fragment>
-            <Link to={`/coupons/detail/${val.number}`}>查看</Link>
+            <Link to={`/coupons/detail/${val.coupons_id}`}>查看</Link>
             <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-            <Link to={`/coupons/edit/${val.number}`}>编辑</Link>
+            <Link to={`/coupons/edit/${val.coupons_id}`}>编辑</Link>
           </Fragment>
         ),
       },
@@ -290,7 +288,7 @@ class CouponsList extends PureComponent {
       <PageHeaderWrapper title="优惠券列表">
         <Card>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
+            {/* <div className={styles.tableListForm}>{this.renderForm()}</div> */}
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={this.handleRouteToEdit}>
                 新建
@@ -306,7 +304,7 @@ class CouponsList extends PureComponent {
               loading={loading}
               data={data}
               columns={columns}
-              rowKey="number"
+              rowKey="coupons_id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />

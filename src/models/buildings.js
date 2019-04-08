@@ -1,7 +1,8 @@
-import { shopList, shopExame, shopEdit } from '@/services/online';
+import { buildingsList, buildingsEdit, buildingsAdd } from '@/services/online';
 
 export default {
-  namespace: 'shop',
+  namespace: 'buildings',
+
   state: {
     list: {},
     detail: {},
@@ -10,7 +11,7 @@ export default {
 
   effects: {
     // eslint-disable-next-line consistent-return
-    *shopList(
+    *buildingsList(
       {
         payload: { errorCallback, ...payload },
       },
@@ -22,8 +23,8 @@ export default {
           Reflect.deleteProperty(payload, key);
         }
       }
-      const response = yield call(shopList, payload);
-      if (Number(response.code) !== 1) {
+      const response = yield call(buildingsList, payload);
+      if (Number(response.code !== 1)) {
         return errorCallback(response.msg);
       }
       yield put({
@@ -34,23 +35,40 @@ export default {
         },
       });
     },
-
-    *shopDetail(
+    // eslint-disable-next-line consistent-return
+    *buildingsEdit(
       {
-        payload: { number, current, errorCallback },
+        payload: { errorCallback, successCallback, ...values },
       },
       { put, call }
     ) {
-      const response = yield call(shopList, { current });
+      const response = yield call(buildingsEdit, values);
+      if (response.code !== 1) {
+        return errorCallback(response.msg);
+      }
+      successCallback();
+      yield put({
+        type: 'changeOrderContent',
+        payload: {
+          attr: 'detail',
+          data: response.data,
+        },
+      });
+    },
+
+    *buildingDetail(
+      {
+        payload: { number, current },
+      },
+      { put, call }
+    ) {
+      const response = yield call(buildingsList, { current });
       const {
         data: { list },
       } = response;
-      if (Number(response.code) !== 1) {
-        errorCallback(response.msg);
-      }
       if (Number(response.code) === 1) {
         for (let i = 0; i < list.length; i += 1) {
-          if (list[i].admin_id === Number(number)) {
+          if (list[i].building_id === Number(number)) {
             yield put({
               type: 'changeOrderContent',
               payload: {
@@ -63,53 +81,31 @@ export default {
       }
     },
 
-    *shopEdit(
+    // eslint-disable-next-line consistent-return
+    *buildingsAdd(
       {
-        payload: { errorCallback, successCallback, values },
+        payload: { errorCallback, successCallback, ...values },
       },
       { put, call }
     ) {
-      const response = yield call(shopEdit, values);
+      const response = yield call(buildingsAdd, values);
       if (Number(response.code) !== 1) {
-        errorCallback(response.msg);
-      } else {
-        successCallback();
-        yield put({
-          type: 'changeOrderContent',
-          payload: {
-            attr: 'list',
-            data: response.data,
-          },
-        });
+        return errorCallback(response.msg);
       }
-    },
-
-    *shopExame(
-      {
-        payload: { errorCallback, successCallback, values },
-      },
-      { put, call }
-    ) {
-      const response = yield call(shopExame, values);
-      if (Number(response.code) !== 1) {
-        errorCallback(response.msg);
-      }
-      if (Number(response.code) === 1) {
-        successCallback();
-        yield put({
-          type: 'changeOrderContent',
-          payload: {
-            attr: 'list',
-            data: response.data,
-          },
-        });
-      }
+      successCallback();
+      yield put({
+        type: 'changeOrderContent',
+        payload: {
+          attr: 'detail',
+          data: response.data,
+        },
+      });
     },
 
     // eslint-disable-next-line require-yield
-    *updataStatus({ payload }, { put }) {
+    *updateStatus({ payload }, { put }) {
       put({
-        type: 'updataStatus',
+        type: 'updateStatus',
         payload,
       });
     },
@@ -127,7 +123,7 @@ export default {
         [attr]: data,
       };
     },
-    updataStatus(state, { payload }) {
+    updateStatus(state, { payload }) {
       return {
         ...state,
         status: { ...state.status, ...payload },

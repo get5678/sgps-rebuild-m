@@ -38,9 +38,15 @@ class CustomsList extends PureComponent {
     form.resetFields();
   };
 
-  handleRouteToEdit = () => {
+  handleRouteToEdit = val => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.push('/customs/edit/:number'));
+    console.log({ val }, ' value ');
+    dispatch(
+      routerRedux.push({
+        pathname: '/customs/edit/:number',
+        query: { val },
+      })
+    );
   };
 
   handleSelectRows = current => {
@@ -96,7 +102,6 @@ class CustomsList extends PureComponent {
           ...values,
           errorCallback(msg) {
             message.error(msg);
-            // console.log(msg);
           },
         },
       });
@@ -106,20 +111,12 @@ class CustomsList extends PureComponent {
   renderForm() {
     const {
       form: { getFieldDecorator },
-      customs: { status },
     } = this.props;
 
     return (
       <Form onSubmit={this.handleSreach} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="用户编号">
-              {getFieldDecorator('number', {
-                initialValue: status.number,
-              })(<Input placeholder="请输入用户编号" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
+          <Col md={8} sm={14}>
             <FormItem label="用户名字">
               {getFieldDecorator('name', {
                 initialValue: '',
@@ -130,12 +127,10 @@ class CustomsList extends PureComponent {
             <FormItem label="用户楼栋">
               {getFieldDecorator('building', {
                 initialValue: '',
-              })(<Input placeholder="请输入楼栋" style={{ width: '200px' }} />)}
+              })(<Input placeholder="请输入楼栋" />)}
             </FormItem>
           </Col>
-        </Row>
-        <div style={{ overflow: 'hidden' }}>
-          <div style={{ float: 'right', marginBottom: 24 }}>
+          <div style={{ overflow: 'hidden' }}>
             <Button type="primary" htmlType="submit">
               查询
             </Button>
@@ -143,7 +138,7 @@ class CustomsList extends PureComponent {
               重置
             </Button>
           </div>
-        </div>
+        </Row>
       </Form>
     );
   }
@@ -156,7 +151,6 @@ class CustomsList extends PureComponent {
       },
     } = this.props;
     const { selectedRows } = this.state;
-
     const columns = [
       {
         title: '用户编号',
@@ -186,13 +180,13 @@ class CustomsList extends PureComponent {
       },
       {
         title: '操作',
-        render(val) {
-          // console.log(val.user_id);
+        render: val => {
           return (
             <Fragment>
-              <Link to={`/customs/detail/${val.number}`}>查看</Link>
+              <Link to={`/customs/edit/${val.user_id}/${val.building_name}`}>升为骑手</Link>
               <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-              <Link to={`/customs/edit/${val.number}`}>编辑</Link>
+              {/* <Link to={`/customs/edit/${val.user_id}/${val.building_name}`}>编辑</Link> */}
+              <a onClick={this.handleRouteToEdit.bind(this, `${{ val }}`)}>编辑</a>
             </Fragment>
           );
         },
@@ -220,7 +214,7 @@ class CustomsList extends PureComponent {
               loading={loading}
               data={data}
               columns={columns}
-              rowKey="number"
+              rowKey="user_id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />

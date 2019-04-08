@@ -85,7 +85,7 @@ class BasicProfile extends Component {
     };
     const goodsColumns = [
       {
-        title: '商品编号',
+        title: '商品种类编号',
         dataIndex: 'id',
         key: 'id',
         render: (text, row, index) => {
@@ -101,13 +101,13 @@ class BasicProfile extends Component {
         },
       },
       {
-        title: '商品名称',
+        title: '商品种类名称',
         dataIndex: 'name',
         key: 'name',
         render: renderContent,
       },
       {
-        title: '商品条码',
+        title: '商品种类条码',
         dataIndex: 'barcode',
         key: 'barcode',
         render: renderContent,
@@ -162,7 +162,7 @@ class BasicProfile extends Component {
             <Description term="备注">{userInfo.remark}</Description>
           </DescriptionList>
           <Divider style={{ marginBottom: 32 }} />
-          <div className={styles.title}>退货商品</div>
+          <div className={styles.title}>退货商品种类</div>
           <Table
             style={{ marginBottom: 24 }}
             pagination={false}

@@ -7,12 +7,12 @@ import StandardTable from '@/components/StandardTable';
 import styles from './List.less';
 
 const FormItem = Form.Item;
-@connect(({ buildings, loading }) => ({
-  buildings,
-  loading: loading.effects['buildings/buildingsList'],
+@connect(({ products, loading }) => ({
+  products,
+  loading: loading.effects['products/productsList'],
 }))
 @Form.create()
-class BuildingsList extends PureComponent {
+class ProductsList extends PureComponent {
   state = {
     selectedRows: [],
   };
@@ -20,10 +20,10 @@ class BuildingsList extends PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      buildings: { status },
+      products: { status },
     } = this.props;
     dispatch({
-      type: 'buildings/buildingsList',
+      type: 'products/productsList',
       payload: {
         ...status,
         errorCallback(msg) {
@@ -41,7 +41,7 @@ class BuildingsList extends PureComponent {
   handleSearch = e => {
     e.preventDefault();
     const {
-      buildings: { status },
+      products: { status },
       form: { validateFields },
       dispatch,
     } = this.props;
@@ -49,12 +49,12 @@ class BuildingsList extends PureComponent {
       if (error) {
         return message.error(error);
       }
-      dispatch({
-        type: 'buildings/buildingsStatus',
-        payload: values,
-      });
+      // dispatch({
+      //     type: 'products/productsStatus',
+      //     payload: values,
+      // });
       return dispatch({
-        type: 'buildings/buildingsSearch',
+        type: 'products/productsSearch',
         payload: {
           ...status,
           ...values,
@@ -68,22 +68,22 @@ class BuildingsList extends PureComponent {
 
   handleRouteToEdit = () => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.push('/buildings/edit/:number/:current'));
+    dispatch(routerRedux.push('/products/edit/:number/:current'));
   };
 
   handleTableChange = (pagination, filters) => {
     const {
       dispatch,
-      buildings: { status },
+      products: { status },
     } = this.props;
     dispatch({
-      type: 'buildings/updateStatus',
+      type: 'products/updateStatus',
       payload: {
         ...pagination,
       },
     });
     dispatch({
-      type: 'buildings/buildingsList',
+      type: 'products/productsList',
       payload: {
         ...status,
         ...pagination,
@@ -97,24 +97,16 @@ class BuildingsList extends PureComponent {
 
   renderForm() {
     const {
-      buildings: { status },
       form: { getFieldDecorator },
     } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="楼栋编号">
-              {getFieldDecorator('id', {
-                initialValue: status.number,
-              })(<Input placeholder="请输入楼栋编号" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="楼栋名称">
+            <FormItem label="商品名称">
               {getFieldDecorator('name', {
                 initialValue: '',
-              })(<Input placeholder="请输入楼栋名称" />)}
+              })(<Input placeholder="请输入商品名称" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -135,7 +127,7 @@ class BuildingsList extends PureComponent {
   render() {
     const {
       loading,
-      buildings: {
+      products: {
         list: { total = 0, current = 1, pageSize = 1, list = [] },
       },
     } = this.props;
@@ -143,20 +135,44 @@ class BuildingsList extends PureComponent {
     const columns = [
       {
         title: '编号',
-        dataIndex: 'building_id',
+        dataIndex: 'product_id',
       },
       {
-        title: '楼栋名',
-        dataIndex: 'building_name',
+        title: '商品名',
+        dataIndex: 'product_name',
       },
       {
-        title: '楼栋状态',
-        dataIndex: 'building_is_open',
+        title: '商品图片',
+        render: val => {
+          if (!val.product_img) {
+            return <span>暂无</span>;
+          }
+          return <img className={styles.pic} src={`${val.product_img}`} alt={val.product_name} />;
+        },
+      },
+      {
+        title: '商品种类',
+        dataIndex: 'category_name',
+      },
+      // {
+      //     title: '销售数量',
+      //     dataIndex: 'product_sales',
+      // },
+      {
+        title: '商品价格',
+        dataIndex: 'product_price',
+        render: val => {
+          return <span>{val}元</span>;
+        },
+      },
+      {
+        title: '商品状态',
+        dataIndex: 'product_state',
         render: val => {
           if (val === 1) {
-            return <span>开放</span>;
+            return <span>正常</span>;
           }
-          return <span>未开放</span>;
+          return <span>下架</span>;
         },
       },
       {
@@ -164,7 +180,7 @@ class BuildingsList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/buildings/edit/${val.building_id}/${current}`}>编辑</Link>
+              <Link to={`/products/edit/${val.product_id}/${current}`}>编辑</Link>
             </Fragment>
           );
         },
@@ -183,20 +199,21 @@ class BuildingsList extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="楼栋列表">
+      <PageHeaderWrapper title="商品列表">
         <Card>
           <div className={styles.tableList}>
-            {/* <div className={styles.tableListForm}>{this.renderForm()}</div> */}
+            <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={this.handleRouteToEdit}>
                 新建
               </Button>
             </div>
             <StandardTable
+              style={{ textAlign: 'center' }}
               columns={columns}
               selectedRows={selectedRows}
               data={data}
-              rowKey="building_id"
+              rowKey="product_id"
               loading={loading}
               onChange={this.handleTableChange}
             />
@@ -207,4 +224,4 @@ class BuildingsList extends PureComponent {
   }
 }
 
-export default BuildingsList;
+export default ProductsList;

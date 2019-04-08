@@ -1,30 +1,15 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
-import { manageIdentify } from '@/services/online';
+import { query as queryUsers } from '@/services/user';
+import { manageLogin } from '@/services/online';
 
 export default {
   namespace: 'user',
 
   state: {
-    list: [],
+    list: {},
     currentUser: {},
   },
 
   effects: {
-    *login(
-      {
-        payload: { errorCallback, ...payload },
-      },
-      { put, call }
-    ) {
-      const response = yield call(manageIdentify, payload);
-      // console.log(response);
-
-      yield put({
-        type: 'changeNotifyCount',
-        payload: response.data,
-      });
-    },
-
     *fetch(_, { call, put }) {
       const response = yield call(queryUsers);
       yield put({
@@ -32,8 +17,14 @@ export default {
         payload: response,
       });
     },
-    *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
+    *fetchCurrent(
+      {
+        payload: { values },
+      },
+      { call, put }
+    ) {
+      const response = yield call(manageLogin, values);
+      // console.log(response, "fetchCurrent,response")
       yield put({
         type: 'saveCurrentUser',
         payload: response,
@@ -62,6 +53,17 @@ export default {
           notifyCount: action.payload.totalCount,
           unreadCount: action.payload.unreadCount,
         },
+      };
+    },
+    updateOrderContent(
+      state,
+      {
+        payload: { attr, data },
+      }
+    ) {
+      return {
+        ...state,
+        [attr]: data,
       };
     },
   },

@@ -1,13 +1,11 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Card, Input, Button, Upload, Icon } from 'antd';
+import { routerRedux } from 'dva/router';
+import { Form, Card, Input, Button, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './Edit.less';
 
 const FormItem = Form.Item;
-// const { Option } = Select;
-const { TextArea } = Input;
-
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -25,96 +23,109 @@ const submitFormLayout = {
     sm: { span: 10, offset: 7 },
   },
 };
-const uploadButton = (
-  <div>
-    <Icon type="plus" />
-    <div className="ant-upload-text">上传图片</div>
-  </div>
-);
+
 @connect(({ shop, loading }) => ({
   shop,
   loading,
 }))
 @Form.create()
 class ShopEdit extends PureComponent {
-  state = {
-    IDPic: [],
-    fileList: [],
-  };
-
-  componentDidMount() {}
+  componentDidMount() {
+    const {
+      match: {
+        params: { number, current },
+      },
+      dispatch,
+    } = this.props;
+    dispatch({
+      type: 'shop/shopDetail',
+      payload: {
+        number,
+        current,
+        errorCallback(msg) {
+          message.error(msg);
+        },
+      },
+    });
+  }
 
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
   };
 
-  handleChange = ({ fileList }) => {
-    this.setState({ fileList });
+  handleEdit = e => {
+    const {
+      form,
+      dispatch,
+      shop: { detail },
+    } = this.props;
+    e.preventDefault();
+    form.validateFields((err, values) => {
+      if (detail.admin_name === values.name) {
+        // eslint-disable-next-line no-param-reassign
+        values.name = undefined;
+      }
+      if (!err) {
+        dispatch({
+          type: 'shop/shopEdit',
+          payload: {
+            errorCallback(msg) {
+              message.error(msg);
+            },
+            successCallback() {
+              message.success('修改成功');
+              dispatch(routerRedux.replace('/shop/list'));
+            },
+            values,
+          },
+        });
+      }
+    });
   };
 
   render() {
-    const { form } = this.props;
-    const { getFieldDecorator } = form;
-    // eslint-disable-next-line no-unused-vars
-    const { IDPic, fileList } = this.state;
+    const {
+      form: { getFieldDecorator },
+      shop: { detail },
+    } = this.props;
+
     return (
       <PageHeaderWrapper title="店铺信息编辑">
         <Card className={styles.FormTable}>
-          <Form style={{ marginTop: 8 }}>
+          <Form style={{ marginTop: 8 }} onSubmit={this.handleEdit}>
             <FormItem {...formItemLayout} label="店铺名称">
               {getFieldDecorator('name', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入店铺名称',
-                  },
-                ],
+                initialValue: detail.admin_name,
               })(<Input placeholder="请输入店铺名称" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="店铺地址">
-              {getFieldDecorator('place', {
+            <FormItem {...formItemLayout} label="店铺账号">
+              {getFieldDecorator('phone', {
+                initialValue: detail.admin_phone,
                 rules: [
                   {
                     required: true,
-                    message: '请输入店铺地址',
+                    message: '请输入店铺账号',
                   },
                 ],
-              })(<Input placeholder="请输入店铺地址" />)}
+              })(<Input placeholder="请输入店铺账号" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="店铺电话">
-              {getFieldDecorator('phonenumber', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入店铺电话',
-                  },
-                ],
-              })(<Input placeholder="请输入店铺电话" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="老板身份证号码">
-              {getFieldDecorator('IDPic', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入老板身份证号码',
-                  },
-                ],
-              })(<Input placeholder="请输入老板身份证号码" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="老板照片">
-              <Upload
-                action="//jsonplaceholder.typicode.com/posts/"
-                listType="picture-card"
-                fileList={IDPic}
-                onChange={this.handleChange}
-              >
-                {IDPic.length >= 2 ? null : uploadButton}
-              </Upload>
+            <FormItem {...formItemLayout} label="新账号">
+              {getFieldDecorator('newPhone')(<Input placeholder="请输入修改后的新账号" />)}
             </FormItem>
 
-            <FormItem {...formItemLayout} label="店铺介绍">
-              {getFieldDecorator('detail')(<TextArea placeholder="请输入店铺介绍" />)}
+            <FormItem {...formItemLayout} label="原密码">
+              {getFieldDecorator('password', {
+                initialValue: detail.admin_password,
+                rules: [
+                  {
+                    required: true,
+                  },
+                ],
+              })(<Input disabled />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="新密码">
+              {getFieldDecorator('newPassword')(<Input placeholder="请输入修改后的密码" />)}
             </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
               <Button type="primary" htmlType="submit" loading={false}>

@@ -4,6 +4,7 @@ import { Link, routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Input, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
+import moment from 'moment';
 import styles from './List.less';
 
 const FormItem = Form.Item;
@@ -40,7 +41,7 @@ class CommodityList extends PureComponent {
 
   handleRouteToEdit = () => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.push('/commodity/edit/:number'));
+    dispatch(routerRedux.push('/commodity/edit/:number/:current'));
   };
 
   handleSelectRows = current => {
@@ -81,16 +82,13 @@ class CommodityList extends PureComponent {
       form: { validateFields },
       dispatch,
     } = this.props;
-    validateFields((error, values) => {
-      if (error) {
-        return message.error(error);
-      }
+    validateFields((_, values) => {
       dispatch({
         type: 'commodity/updateStatus',
         payload: values,
       });
-      return dispatch({
-        type: 'commodity/commoditySearch',
+      dispatch({
+        type: 'commodity/commodityList',
         payload: {
           ...status,
           ...values,
@@ -102,31 +100,19 @@ class CommodityList extends PureComponent {
     });
   };
 
-  renderForm() {
+  renderForm = () => {
     const {
       form: { getFieldDecorator },
     } = this.props;
-
     return (
       <Form onSubmit={this.handleSreach} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="商品编号">
-              {getFieldDecorator('id', {
-                initialValue: '',
-              })(<Input placeholder="请输入商品编号" />)}
+            <FormItem label="商品种类名称">
+              {getFieldDecorator('name')(<Input placeholder="请输入商品种类名称" />)}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="商品名称">
-              {getFieldDecorator('name', {
-                initialValue: '',
-              })(<Input placeholder="请输入商品名称" />)}
-            </FormItem>
-          </Col>
-        </Row>
-        <div style={{ overflow: 'hidden' }}>
-          <div style={{ float: 'right', marginBottom: 24 }}>
+          <div>
             <Button type="primary" htmlType="submit">
               查询
             </Button>
@@ -134,10 +120,10 @@ class CommodityList extends PureComponent {
               重置
             </Button>
           </div>
-        </div>
+        </Row>
       </Form>
     );
-  }
+  };
 
   render() {
     const {
@@ -147,18 +133,17 @@ class CommodityList extends PureComponent {
       },
     } = this.props;
     const { selectedRows } = this.state;
-
     const columns = [
       {
-        title: '商品编号',
+        title: '商品种类编号',
         dataIndex: 'category_id',
       },
       {
-        title: '商品名称',
+        title: '商品种类名称',
         dataIndex: 'category_name',
       },
       {
-        title: '商品状态',
+        title: '商品种类状态',
         dataIndex: 'category_state',
         render: val => {
           if (val === 0) {
@@ -167,15 +152,17 @@ class CommodityList extends PureComponent {
           return <span>正常</span>;
         },
       },
-
+      {
+        title: '商品种类入库时间',
+        dataIndex: 'category_create_time',
+        render: val => moment(val).format('YYYY-MM-DD'),
+      },
       {
         title: '操作',
-        render(val) {
+        render: val => {
           return (
             <Fragment>
-              <Link to={`/commodity/detail/${val.number}`}>查看</Link>
-              <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-              <Link to={`/commodity/edit/${val.number}`}>编辑</Link>
+              <Link to={`/commodity/edit/${val.category_id}/${current}`}>编辑</Link>
             </Fragment>
           );
         },
@@ -194,7 +181,7 @@ class CommodityList extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="商品列表">
+      <PageHeaderWrapper title="商品种类列表">
         <Card>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -208,7 +195,7 @@ class CommodityList extends PureComponent {
               loading={loading}
               data={data}
               columns={columns}
-              rowKey="number"
+              rowKey="category_id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />

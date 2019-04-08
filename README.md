@@ -74,8 +74,8 @@ We need your help: https://github.com/ant-design/ant-design-pro/issues/120
   - 500
 - User
   - Login
-  - Register
-  - Register Result
+  - register
+  - register Result
 ```
 
 ## Usage

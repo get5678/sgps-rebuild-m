@@ -20,7 +20,7 @@ const actions = (
   </div>
 );
 
-const RegisterResult = ({ location }) => (
+const registerResult = ({ location }) => (
   <Result
     className={styles.registerResult}
     type="success"
@@ -38,4 +38,4 @@ const RegisterResult = ({ location }) => (
   />
 );
 
-export default RegisterResult;
+export default registerResult;

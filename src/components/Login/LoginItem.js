@@ -51,7 +51,7 @@ class WrapFormItem extends Component {
 
   // getCaptchas = {
   //   const { dispatch } = this.props;
-  //   // console.log(res);
+  //   console.log(res);
   //   dispatch({
   //     type: 'login/loginIdentify',
   //     payload: {

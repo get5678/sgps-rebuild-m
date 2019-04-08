@@ -1,15 +1,13 @@
+/* eslint-disable react/no-danger */
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
-import Link from 'umi/link';
-import router from 'umi/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import { Link, routerRedux } from 'dva/router';
+import { Form, Input, Button, Row, Col, Popover, message, Progress, Select } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const InputGroup = Input.Group;
-
 const passwordStatusMap = {
   ok: (
     <div className={styles.success}>
@@ -45,14 +43,13 @@ class Register extends Component {
     confirmDirty: false,
     visible: false,
     help: '',
-    prefix: '86',
   };
 
   componentDidUpdate() {
     const { form, register } = this.props;
     const account = form.getFieldValue('mail');
     if (register.status === 'ok') {
-      router.push({
+      routerRedux.push({
         pathname: '/user/register-result',
         state: {
           account,
@@ -65,16 +62,26 @@ class Register extends Component {
     clearInterval(this.interval);
   }
 
-  onGetCaptcha = () => {
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
-      this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
+  onGetCaptcha = e => {
+    const { dispatch, form } = this.props;
+    e.preventDefault();
+
+    form.validateFields((err, values) => {
+      this.setState({
+        count: 1,
+      });
+      // eslint-disable-next-line no-param-reassign
+      values.type = '1';
+      dispatch({
+        type: 'register/getCaptcha',
+        payload: {
+          values,
+          errorCallback(msg) {
+            message.error(msg);
+          },
+        },
+      });
+    });
   };
 
   getPasswordStatus = () => {
@@ -94,12 +101,17 @@ class Register extends Component {
     const { form, dispatch } = this.props;
     form.validateFields({ force: true }, (err, values) => {
       if (!err) {
-        const { prefix } = this.state;
         dispatch({
-          type: 'register/submit',
+          type: 'register/manageRegiste',
           payload: {
             ...values,
-            prefix,
+            errorCallback(msg) {
+              message.error(msg);
+            },
+            successCallback() {
+              message.success('注册成功');
+              dispatch(routerRedux.replace('/user/login'));
+            },
           },
         });
       }
@@ -150,12 +162,6 @@ class Register extends Component {
     }
   };
 
-  changePrefix = value => {
-    this.setState({
-      prefix: value,
-    });
-  };
-
   renderPasswordProgress = () => {
     const { form } = this.props;
     const value = form.getFieldValue('password');
@@ -174,30 +180,56 @@ class Register extends Component {
   };
 
   render() {
-    const { form, submitting } = this.props;
+    const {
+      form,
+      submitting,
+      register: { imgs = ' ' },
+    } = this.props;
     const { getFieldDecorator } = form;
-    const { count, prefix, help, visible } = this.state;
+    const { count, help, visible } = this.state;
+    const img = imgs.replace('\\', '');
     return (
       <div className={styles.main}>
-        <h3>
-          <FormattedMessage id="app.register.register" />
-        </h3>
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
             {getFieldDecorator('name', {
               rules: [
                 {
                   required: true,
-                  message: formatMessage({ id: 'validation.email.required' }),
+                  message: '请输入管理员名',
                 },
+              ],
+            })(<Input size="large" placeholder="管理员名称" />)}
+          </FormItem>
+          <FormItem>
+            {getFieldDecorator('identity', {
+              initialValue: '',
+              rules: [
                 {
-                  type: 'email',
-                  message: formatMessage({ id: 'validation.email.wrong-format' }),
+                  required: true,
+                  message: '请选择权限',
                 },
               ],
             })(
-              <Input size="large" placeholder={formatMessage({ id: 'form.email.placeholder' })} />
+              <Select size="large">
+                <Option value={0}>总店</Option>
+                <Option value={1}>分店</Option>
+              </Select>
             )}
+          </FormItem>
+          <FormItem>
+            {getFieldDecorator('phone', {
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'validation.phone-number.required' }),
+                },
+                {
+                  pattern: /^\d{11}$/,
+                  message: formatMessage({ id: 'validation.phone-number.wrong-format' }),
+                },
+              ],
+            })(<Input size="large" placeholder="手机号" />)}
           </FormItem>
           <FormItem help={help}>
             <Popover
@@ -249,41 +281,11 @@ class Register extends Component {
               />
             )}
           </FormItem>
-          <FormItem>
-            <InputGroup compact>
-              <Select
-                size="large"
-                value={prefix}
-                onChange={this.changePrefix}
-                style={{ width: '20%' }}
-              >
-                <Option value="86">+86</Option>
-                <Option value="87">+87</Option>
-              </Select>
-              {getFieldDecorator('mobile', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'validation.phone-number.required' }),
-                  },
-                  {
-                    pattern: /^\d{11}$/,
-                    message: formatMessage({ id: 'validation.phone-number.wrong-format' }),
-                  },
-                ],
-              })(
-                <Input
-                  size="large"
-                  style={{ width: '80%' }}
-                  placeholder={formatMessage({ id: 'form.phone-number.placeholder' })}
-                />
-              )}
-            </InputGroup>
-          </FormItem>
+
           <FormItem>
             <Row gutter={8}>
               <Col span={16}>
-                {getFieldDecorator('captcha', {
+                {getFieldDecorator('code', {
                   rules: [
                     {
                       required: true,
@@ -298,28 +300,22 @@ class Register extends Component {
                 )}
               </Col>
               <Col span={8}>
-                <Button
-                  size="large"
-                  disabled={count}
-                  className={styles.getCaptcha}
-                  onClick={this.onGetCaptcha}
-                >
-                  {count
-                    ? `${count} s`
-                    : formatMessage({ id: 'app.register.get-verification-code' })}
+                <Button size="large" className={styles.getCaptcha} onClick={this.onGetCaptcha}>
+                  {count === 0 ? '获取验证码' : '换一张'}
                 </Button>
               </Col>
             </Row>
           </FormItem>
+          <div dangerouslySetInnerHTML={{ __html: img }} />
           <FormItem>
             <Button
               size="large"
               loading={submitting}
               className={styles.submit}
               type="primary"
-              htmlType="submit"
+              onClick={this.handleSubmit}
             >
-              <FormattedMessage id="app.register.register" />
+              注册
             </Button>
             <Link className={styles.login} to="/User/Login">
               <FormattedMessage id="app.register.sign-in" />

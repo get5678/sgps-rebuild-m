@@ -1,14 +1,23 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Col, Form, Card, Button, Select, Input, message } from 'antd';
+import {
+  Row,
+  Col,
+  Form,
+  Card,
+  Button,
+  Input,
+  message,
+  InputNumber,
+  Popconfirm,
+  Divider,
+} from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import styles from './List.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
-
 @connect(({ rider, loading }) => ({
   rider,
   loading: loading.effects['rider/riderList'],
@@ -42,7 +51,7 @@ class RiderList extends PureComponent {
 
   handleRouteToEdit = () => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.push('/rider/edit/:number'));
+    dispatch(routerRedux.push('/rider/edit/:number/:current'));
   };
 
   handleSelectRows = current => {
@@ -92,10 +101,10 @@ class RiderList extends PureComponent {
         payload: values,
       });
       return dispatch({
-        type: 'rider/riderList',
+        type: 'rider/riderSreach',
         payload: {
           ...status,
-          ...values,
+          values,
           errorCallback(msg) {
             message.error(msg);
           },
@@ -104,47 +113,58 @@ class RiderList extends PureComponent {
     });
   };
 
+  handleDelect = e => {
+    const {
+      dispatch,
+      rider: { status },
+    } = this.props;
+    dispatch({
+      type: 'rider/riderDelect',
+      payload: {
+        id: e,
+        errorCallback(msg) {
+          message.error(msg);
+        },
+        successCallback() {
+          message.success('删除成功');
+          dispatch({
+            type: 'rider/updateStatus',
+            payload: {
+              ...status,
+            },
+          });
+          dispatch({
+            type: 'rider/riderList',
+            payload: {
+              ...status,
+              errorCallback(msg) {
+                message.error(msg);
+              },
+            },
+          });
+        },
+      },
+    });
+  };
+
+  // eslint-disable-next-line react/sort-comp
   renderForm() {
     const {
       form: { getFieldDecorator },
-      rider: { status },
     } = this.props;
 
     return (
       <Form onSubmit={this.handleSreach} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="骑手编号">
-              {getFieldDecorator('number', {
-                initialValue: status.number,
-              })(<Input placeholder="请输入骑手编号" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
             <FormItem label="骑手名字">
-              {getFieldDecorator('name', {
-                initialValue: '',
-              })(<Input placeholder="请输入骑手名" />)}
+              {getFieldDecorator('name')(<Input placeholder="请输入骑手名" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="负责楼栋">
-              {getFieldDecorator('category', {
-                initialValue: '',
-              })(
-                <Select placeholder="请选择" mode="multiple" style={{ width: '200px' }}>
-                  <Option value="">所有楼栋</Option>
-                  <Option value="0">1</Option>
-                  <Option value="1">2</Option>
-                  <Option value="2">3</Option>
-                  <Option value="3">4</Option>
-                </Select>
-              )}
-            </FormItem>
+            <FormItem label="负责楼栋">{getFieldDecorator('building')(<InputNumber />)}</FormItem>
           </Col>
-        </Row>
-        <div style={{ overflow: 'hidden' }}>
-          <div style={{ float: 'right', marginBottom: 24 }}>
+          <div style={{ overflow: 'hidden' }}>
             <Button type="primary" htmlType="submit">
               查询
             </Button>
@@ -152,7 +172,7 @@ class RiderList extends PureComponent {
               重置
             </Button>
           </div>
-        </div>
+        </Row>
       </Form>
     );
   }
@@ -169,33 +189,52 @@ class RiderList extends PureComponent {
     const columns = [
       {
         title: '骑手编号',
-        dataIndex: 'number',
+        dataIndex: 'rider_id',
       },
       {
         title: '骑手名字',
-        dataIndex: 'name',
+        dataIndex: 'rider_name',
+      },
+      {
+        title: '骑手性别',
+        dataIndex: 'rider_sex',
+        render: val => {
+          if (val === 0) {
+            return <span>男</span>;
+          }
+          if (val === 1) {
+            return <span>女</span>;
+          }
+          return <span>不详</span>;
+        },
       },
       {
         title: '负责楼栋',
-        dataIndex: 'house',
-        sorter: true,
+        dataIndex: 'building_name',
       },
       {
         title: '骑手电话',
-        dataIndex: 'phonenumber',
+        dataIndex: 'rider_phone',
       },
       {
-        title: '身份证号',
-        dataIndex: 'ID',
+        title: '骑手身份证号码',
+        dataIndex: 'rider_identity_number',
       },
       {
         title: '操作',
-        render(val) {
+        render: val => {
           return (
             <Fragment>
-              <Link to={`/rider/detail/${val.number}`}>查看</Link>
-              <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-              <Link to={`/rider/edit/${val.number}`}>编辑</Link>
+              <Link to={`/rider/detail/${val.rider_id}/${current}`}>查看</Link>
+              <Divider type="vertical" />
+              <Link to={`/rider/edit/${val.rider_id}/${current}`}>编辑</Link>
+              <Divider type="vertical" />
+              <Popconfirm
+                title="是否要删除此行？"
+                onConfirm={() => this.handleDelect(val.rider_id)}
+              >
+                <a>删除</a>
+              </Popconfirm>
             </Fragment>
           );
         },
@@ -228,7 +267,7 @@ class RiderList extends PureComponent {
               loading={loading}
               data={data}
               columns={columns}
-              rowKey="number"
+              rowKey="rider_id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />

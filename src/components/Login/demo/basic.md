@@ -74,7 +74,7 @@ class LoginDemo extends React.Component {
           <span className="icon icon-alipay" />
           <span className="icon icon-taobao" />
           <span className="icon icon-weibo" />
-          <a style={{ float: 'right' }} href="">Register</a>
+          <a style={{ float: 'right' }} href="">register</a>
         </div>
       </Login>
     );

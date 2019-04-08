@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Col, Form, Card, Button, Input, message } from 'antd';
+import { Row, Col, Form, Card, Button, Input, message, Popconfirm, Divider } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import styles from './List.less';
@@ -103,6 +103,28 @@ class ShopList extends PureComponent {
     });
   };
 
+  handleExame = e => {
+    const { admin_id: id, admin_state: states } = e;
+    const { dispatch } = this.props;
+    let state = 0;
+    if (states === 0) {
+      state = 1;
+    }
+    dispatch({
+      type: 'shop/shopExame',
+      payload: {
+        values: { id, state },
+        errorCallback(msg) {
+          message.error(msg);
+        },
+        successCallback() {
+          message.success('审核成功');
+          dispatch(routerRedux.replace('/shop/list'));
+        },
+      },
+    });
+  };
+
   renderForm() {
     const {
       form: { getFieldDecorator },
@@ -160,29 +182,41 @@ class ShopList extends PureComponent {
     const columns = [
       {
         title: '店铺编号',
-        dataIndex: 'number',
+        dataIndex: 'admin_id',
       },
       {
         title: '店铺名称',
-        dataIndex: 'name',
-      },
-      {
-        title: '店铺地址',
-        dataIndex: 'place',
-        sorter: true,
+        dataIndex: 'admin_name',
       },
       {
         title: '店铺电话',
-        dataIndex: 'phonenumber',
+        dataIndex: 'admin_phone',
+      },
+      {
+        title: '店铺状态',
+        dataIndex: 'admin_state',
+        render: val => {
+          if (val === 0) {
+            return <span>未审核</span>;
+          }
+          return <span>正常</span>;
+        },
       },
       {
         title: '操作',
-        render(val) {
+        render: val => {
           return (
             <Fragment>
-              <Link to={`/shop/detail/${val.number}`}>查看</Link>
-              <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-              <Link to={`/shop/edit/${val.number}`}>编辑</Link>
+              <Link to={`/shop/edit/${val.admin_id}/${current}`}>编辑</Link>
+              <Divider type="vertical" />
+              <Popconfirm
+                title="确认将该分店"
+                onConfirm={() => {
+                  this.handleExame(val);
+                }}
+              >
+                <a>审核</a>
+              </Popconfirm>
             </Fragment>
           );
         },
@@ -204,18 +238,12 @@ class ShopList extends PureComponent {
       <PageHeaderWrapper title="店铺列表">
         <Card>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.handleRouteToEdit}>
-                新建
-              </Button>
-            </div>
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
               data={data}
               columns={columns}
-              rowKey="number"
+              rowKey="admin_id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
