@@ -30,24 +30,7 @@ const submitFormLayout = {
 }))
 @Form.create()
 class ShopEdit extends PureComponent {
-  componentDidMount() {
-    const {
-      match: {
-        params: { number, current },
-      },
-      dispatch,
-    } = this.props;
-    dispatch({
-      type: 'shop/shopDetail',
-      payload: {
-        number,
-        current,
-        errorCallback(msg) {
-          message.error(msg);
-        },
-      },
-    });
-  }
+  componentDidMount() {}
 
   handleFormReset = () => {
     const { form } = this.props;
@@ -58,11 +41,13 @@ class ShopEdit extends PureComponent {
     const {
       form,
       dispatch,
-      shop: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     e.preventDefault();
     form.validateFields((err, values) => {
-      if (detail.admin_name === values.name) {
+      if (query.admin_name === values.name) {
         // eslint-disable-next-line no-param-reassign
         values.name = undefined;
       }
@@ -87,7 +72,9 @@ class ShopEdit extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      shop: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
 
     return (
@@ -96,12 +83,12 @@ class ShopEdit extends PureComponent {
           <Form style={{ marginTop: 8 }} onSubmit={this.handleEdit}>
             <FormItem {...formItemLayout} label="店铺名称">
               {getFieldDecorator('name', {
-                initialValue: detail.admin_name,
+                initialValue: query.admin_name,
               })(<Input placeholder="请输入店铺名称" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="店铺账号">
               {getFieldDecorator('phone', {
-                initialValue: detail.admin_phone,
+                initialValue: query.admin_phone,
                 rules: [
                   {
                     required: true,
@@ -116,13 +103,13 @@ class ShopEdit extends PureComponent {
 
             <FormItem {...formItemLayout} label="原密码">
               {getFieldDecorator('password', {
-                initialValue: detail.admin_password,
                 rules: [
                   {
+                    message: '请输入之前的密码',
                     required: true,
                   },
                 ],
-              })(<Input disabled />)}
+              })(<Input placeholder="请输入之前的密码" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="新密码">
               {getFieldDecorator('newPassword')(<Input placeholder="请输入修改后的密码" />)}

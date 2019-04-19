@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Input, message, Popconfirm, Divider } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
@@ -101,6 +101,16 @@ class ShopList extends PureComponent {
         },
       });
     });
+  };
+
+  handleEdit = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/shop/edit/:number/:current',
+        query: val,
+      })
+    );
   };
 
   handleExame = e => {
@@ -207,7 +217,7 @@ class ShopList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/shop/edit/${val.admin_id}/${current}`}>编辑</Link>
+              <a onClick={this.handleEdit.bind(this, val)}>编辑</a>
               <Divider type="vertical" />
               <Popconfirm
                 title="确认将该分店"

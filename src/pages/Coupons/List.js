@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Select, Input, Icon, message } from 'antd';
 import moment from 'moment';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -74,6 +74,26 @@ class CouponsList extends PureComponent {
         },
       },
     });
+  };
+
+  handleDetail = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/coupons/detail/:number/:current',
+        query: val,
+      })
+    );
+  };
+
+  handleEdit = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/coupons/edit/:number/:current',
+        query: val,
+      })
+    );
   };
 
   handleSearch = e => {
@@ -257,9 +277,9 @@ class CouponsList extends PureComponent {
         title: '操作',
         render: val => (
           <Fragment>
-            <Link to={`/coupons/detail/${val.coupons_id}`}>查看</Link>
+            <a onClick={this.handleDetail.bind(this, val)}>查看</a>
             <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-            <Link to={`/coupons/edit/${val.coupons_id}`}>编辑</Link>
+            <a onClick={this.handleEdit.bind(this, val)}>编辑</a>
           </Fragment>
         ),
       },

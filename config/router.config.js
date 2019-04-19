@@ -92,11 +92,11 @@ export default [
             name: 'riderlist',
             component: './rider/List',
           },
-          {
-            path: '/rider/detail/:number/:current',
-            name: 'riderdetail',
-            component: './rider/Detail',
-          },
+          // {
+          //   path: '/rider/detail/:number/:current',
+          //   name: 'riderdetail',
+          //   component: './rider/Detail',
+          // },
           {
             path: '/rider/edit/:number/:current',
             name: 'rideredit',
@@ -169,7 +169,7 @@ export default [
             component: './coupons/edit',
           },
           {
-            path: '/coupons/detail/:number',
+            path: '/coupons/detail/:number/:current',
             name: 'couponsdetail',
             component: './coupons/detail',
           },

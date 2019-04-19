@@ -39,26 +39,13 @@ class CouponstList extends PureComponent {
 
   componentDidMount() {
     const {
-      match: {
-        params: { number },
+      history: {
+        location: { query },
       },
-      dispatch,
     } = this.props;
-    const reg = /^[\d]+$/;
-    if (!reg.test(number)) {
+    if (Object.keys(query).length === 0) {
       this.setState({
         addIf: true,
-      });
-    }
-    if (reg.test(number)) {
-      dispatch({
-        type: 'coupons/couponsDetail',
-        payload: {
-          number,
-          errorCallback(msg) {
-            message.error(msg);
-          },
-        },
       });
     }
   }
@@ -140,7 +127,9 @@ class CouponstList extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      coupons: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     const { addIf } = this.state;
     return (
@@ -149,12 +138,12 @@ class CouponstList extends PureComponent {
           <Form style={{ marginTop: 8 }}>
             <FormItem {...formItemLayout} label="优惠券编号">
               {getFieldDecorator('id', {
-                initialValue: addIf ? undefined : detail.coupons_id,
+                initialValue: addIf ? undefined : query.coupons_id,
               })(<InputNumber disabled={addIf} />)}
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券名">
               {getFieldDecorator('name', {
-                initialValue: addIf ? undefined : detail.coupons_name,
+                initialValue: addIf ? undefined : query.coupons_name,
                 rules: [
                   {
                     required: false,
@@ -165,7 +154,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券状态">
               {getFieldDecorator('state', {
-                initialValue: addIf ? undefined : detail.coupons_state,
+                initialValue: addIf ? undefined : query.coupons_state,
               })(
                 <Select>
                   <Option value={0}>过期</Option>
@@ -176,7 +165,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券类别">
               {getFieldDecorator('type', {
-                initialValue: addIf ? undefined : detail.coupons_type,
+                initialValue: addIf ? undefined : query.coupons_type,
                 rules: [
                   {
                     required: true,
@@ -197,7 +186,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券折扣">
               {getFieldDecorator('discount', {
-                initialValue: addIf ? undefined : detail.coupons_discount,
+                initialValue: addIf ? undefined : query.coupons_discount,
                 rules: [
                   {
                     required: false,
@@ -208,7 +197,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券减免金额">
               {getFieldDecorator('price', {
-                initialValue: addIf ? undefined : detail.coupons_price,
+                initialValue: addIf ? undefined : query.coupons_price,
                 rules: [
                   {
                     required: false,
@@ -219,7 +208,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="优惠券使用条件">
               {getFieldDecorator('fill', {
-                initialValue: addIf ? undefined : detail.coupons_fill,
+                initialValue: addIf ? undefined : query.coupons_fill,
                 rules: [
                   {
                     required: false,
@@ -230,7 +219,7 @@ class CouponstList extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="到期时间">
               {getFieldDecorator('limited_time', {
-                initialValue: addIf ? undefined : moment(detail.coupons_limited_time, 'YYYY-MM-DD'),
+                initialValue: addIf ? undefined : moment(query.coupons_limited_time, 'YYYY-MM-DD'),
                 rules: [
                   {
                     required: true,

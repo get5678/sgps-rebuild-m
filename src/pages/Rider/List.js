@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import {
   Row,
   Col,
@@ -47,6 +47,16 @@ class RiderList extends PureComponent {
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
+  };
+
+  handleEdit = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/rider/edit/:number/:current',
+        query: val,
+      })
+    );
   };
 
   handleRouteToEdit = () => {
@@ -225,9 +235,9 @@ class RiderList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/rider/detail/${val.rider_id}/${current}`}>查看</Link>
-              <Divider type="vertical" />
-              <Link to={`/rider/edit/${val.rider_id}/${current}`}>编辑</Link>
+              {/* <Link to={`/rider/detail/${val.rider_id}/${current}`}>查看</Link>
+              <Divider type="vertical" /> */}
+              <a onClick={this.handleEdit.bind(this, val)}>编辑</a>
               <Divider type="vertical" />
               <Popconfirm
                 title="是否要删除此行？"

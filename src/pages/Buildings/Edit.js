@@ -36,24 +36,13 @@ class BuildingsEdit extends PureComponent {
 
   componentDidMount() {
     const {
-      match: {
-        params: { number, current },
+      history: {
+        location: { query },
       },
-      dispatch,
     } = this.props;
-    const reg = /^[\d]+$/;
-    if (!reg.test(number)) {
+    if (Object.keys(query).length === 0) {
       this.setState({
         addIf: true,
-      });
-    }
-    if (reg.test(number)) {
-      dispatch({
-        type: 'buildings/buildingDetail',
-        payload: {
-          number,
-          current,
-        },
       });
     }
   }
@@ -78,11 +67,13 @@ class BuildingsEdit extends PureComponent {
     const {
       form,
       dispatch,
-      buildings: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     e.preventDefault();
     form.validateFields((err, values) => {
-      if (detail.building_name === values.name) {
+      if (query.building_name === values.name) {
         // eslint-disable-next-line no-param-reassign
         values.name = undefined;
       }
@@ -138,7 +129,9 @@ class BuildingsEdit extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      buildings: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     const { addIf } = this.state;
     return (
@@ -147,7 +140,7 @@ class BuildingsEdit extends PureComponent {
           <Form style={{ marginTop: 8 }} onSubmit={this.handleSubmit}>
             <FormItem {...formItemLayout} label="楼栋编号">
               {getFieldDecorator('id', {
-                initialValue: addIf ? '' : detail.building_id,
+                initialValue: addIf ? '' : query.building_id,
                 rules: [
                   {
                     message: '请输入楼栋编号',
@@ -158,7 +151,7 @@ class BuildingsEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="楼栋名称">
               {getFieldDecorator('name', {
-                initialValue: addIf ? '' : detail.building_name,
+                initialValue: addIf ? '' : query.building_name,
                 rules: [
                   {
                     message: '请输入楼栋名称',
@@ -169,7 +162,7 @@ class BuildingsEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="楼栋状态">
               {getFieldDecorator('is_open', {
-                initialValue: addIf ? '' : detail.building_is_open,
+                initialValue: addIf ? '' : query.building_is_open,
                 rules: [
                   {
                     message: '请输入楼栋状态',

@@ -35,24 +35,14 @@ class CommodityEdit extends PureComponent {
 
   componentDidMount() {
     const {
-      match: {
-        params: { number, current },
+      history: {
+        location: { query },
       },
-      dispatch,
     } = this.props;
-    const reg = /^[\d]+$/;
-    if (!reg.test(number)) {
+
+    if (Object.keys(query).length === 0) {
       this.setState({
         addIf: true,
-      });
-    }
-    if (reg.test(number)) {
-      dispatch({
-        type: 'commodity/commodityDetail',
-        payload: {
-          number,
-          current,
-        },
       });
     }
   }
@@ -62,7 +52,6 @@ class CommodityEdit extends PureComponent {
     e.preventDefault();
     form.validateFields((err, values) => {
       if (!err) {
-        // console.log(values)
         dispatch({
           type: 'commodity/commodityAdd',
           payload: {
@@ -84,11 +73,13 @@ class CommodityEdit extends PureComponent {
     const {
       form,
       dispatch,
-      commodity: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     e.preventDefault();
     form.validateFields((err, values) => {
-      if (detail.category_name === values.name) {
+      if (query.category_name === values.name) {
         // eslint-disable-next-line no-param-reassign
         values.name = undefined;
       }
@@ -162,14 +153,16 @@ class CommodityEdit extends PureComponent {
 
   renderEditButton = () => {
     const {
-      commodity: { detail },
       form: { getFieldDecorator },
+      history: {
+        location: { query },
+      },
     } = this.props;
     return (
       <Form>
         <FormItem {...formItemLayout} label="商品种类编号">
           {getFieldDecorator('id', {
-            initialValue: detail.category_id,
+            initialValue: query.category_id,
             rules: [
               {
                 required: true,
@@ -180,12 +173,12 @@ class CommodityEdit extends PureComponent {
         </FormItem>
         <FormItem {...formItemLayout} label="商品种类名称">
           {getFieldDecorator('name', {
-            initialValue: detail.category_name,
+            initialValue: query.category_name,
           })(<Input />)}
         </FormItem>
         <FormItem {...formItemLayout} label="商品状态">
           {getFieldDecorator('state', {
-            initialValue: detail.category_state,
+            initialValue: query.category_state,
             rules: [
               {
                 required: true,
@@ -201,7 +194,7 @@ class CommodityEdit extends PureComponent {
         </FormItem>
         <FormItem {...formItemLayout} label="是否删除">
           {getFieldDecorator('is_delete', {
-            initialValue: detail.category_is_delete,
+            initialValue: query.category_is_delete,
             rules: [
               {
                 required: true,

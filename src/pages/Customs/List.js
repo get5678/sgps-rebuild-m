@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Input, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
@@ -40,11 +40,20 @@ class CustomsList extends PureComponent {
 
   handleRouteToEdit = val => {
     const { dispatch } = this.props;
-    console.log({ val }, ' value ');
     dispatch(
       routerRedux.push({
         pathname: '/customs/edit/:number',
-        query: { val },
+        query: val,
+      })
+    );
+  };
+
+  handleRider = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/rider/edit/:number/:current',
+        query: val,
       })
     );
   };
@@ -183,10 +192,9 @@ class CustomsList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/customs/edit/${val.user_id}/${val.building_name}`}>升为骑手</Link>
+              <a onClick={this.handleRider.bind(this, val)}>编辑</a>
               <span style={{ margin: ' 0 10px', color: '#e8e8e8' }}>|</span>
-              {/* <Link to={`/customs/edit/${val.user_id}/${val.building_name}`}>编辑</Link> */}
-              <a onClick={this.handleRouteToEdit.bind(this, `${{ val }}`)}>编辑</a>
+              <a onClick={this.handleRouteToEdit.bind(this, val)}>编辑</a>
             </Fragment>
           );
         },

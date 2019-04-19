@@ -36,6 +36,7 @@ class UserManageEdit extends PureComponent {
       match: { params },
       dispatch,
     } = this.props;
+
     dispatch({
       type: 'customs/customsDetail',
       payload: {
@@ -84,7 +85,9 @@ class UserManageEdit extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      customs: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     return (
       <PageHeaderWrapper title="用户信息编辑">
@@ -92,7 +95,7 @@ class UserManageEdit extends PureComponent {
           <Form style={{ marginTop: 8 }} onSubmit={this.handleEdit}>
             <FormItem {...formItemLayout} label="用户编号">
               {getFieldDecorator('id', {
-                initialValue: detail.user_id,
+                initialValue: query.user_id,
                 rules: [
                   {
                     required: true,
@@ -103,12 +106,12 @@ class UserManageEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="用户姓名">
               {getFieldDecorator('name', {
-                initialValue: detail.user_name,
+                initialValue: query.user_name,
               })(<Input placeholder="请输入用户姓名" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="用户性别">
               {getFieldDecorator('sex', {
-                initialValue: detail.user_sex,
+                initialValue: query.user_sex,
               })(
                 <Select>
                   <Option value={0}>男</Option>
@@ -118,7 +121,7 @@ class UserManageEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="用户所在楼栋">
               {getFieldDecorator('building', {
-                initialValue: detail.building_name,
+                initialValue: query.building_name,
               })(
                 <Input
                   style={{
@@ -129,7 +132,7 @@ class UserManageEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="用户电话">
               {getFieldDecorator('phone', {
-                initialValue: detail.user_phone,
+                initialValue: query.user_phone,
               })(<Input placeholder="请输入用户电话" />)}
             </FormItem>
 

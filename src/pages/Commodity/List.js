@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Input, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
@@ -39,9 +39,24 @@ class CommodityList extends PureComponent {
     form.resetFields();
   };
 
-  handleRouteToEdit = () => {
+  handleRouteToEdit = val => {
     const { dispatch } = this.props;
-    dispatch(routerRedux.push('/commodity/edit/:number/:current'));
+    dispatch(
+      routerRedux.push({
+        pathname: '/commodity/edit/:number/:current',
+        query: val,
+      })
+    );
+  };
+
+  handleRouteToAdd = () => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/commodity/edit/:number/:current',
+        query: null,
+      })
+    );
   };
 
   handleSelectRows = current => {
@@ -162,7 +177,7 @@ class CommodityList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/commodity/edit/${val.category_id}/${current}`}>编辑</Link>
+              <a onClick={this.handleRouteToEdit.bind(this, val)}>编辑</a>
             </Fragment>
           );
         },
@@ -186,7 +201,7 @@ class CommodityList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.handleRouteToEdit}>
+              <Button icon="plus" type="primary" onClick={this.handleRouteToAdd}>
                 新建
               </Button>
             </div>

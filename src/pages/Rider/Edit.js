@@ -37,24 +37,13 @@ class RiderEdit extends PureComponent {
 
   componentDidMount() {
     const {
-      match: {
-        params: { number, current },
+      history: {
+        location: { query },
       },
-      dispatch,
     } = this.props;
-    const reg = /^[\d]+$/;
-    if (!reg.test(number)) {
+    if (Object.keys(query).length === 0) {
       this.setState({
         addIf: true,
-      });
-    }
-    if (reg.test(number)) {
-      dispatch({
-        type: 'rider/riderDetail',
-        payload: {
-          number,
-          current,
-        },
       });
     }
   }
@@ -63,15 +52,17 @@ class RiderEdit extends PureComponent {
     const {
       dispatch,
       form: { validateFields },
-      rider: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     validateFields((err, values) => {
       if (!err) {
-        if (detail.rider_name === values.name) {
+        if (query.rider_name === values.name) {
           // eslint-disable-next-line no-param-reassign
           values.name = undefined;
         }
-        if (detail.rider_phone === values.phone) {
+        if (query.rider_phone === values.phone) {
           // eslint-disable-next-line no-param-reassign
           values.phone = undefined;
         }
@@ -143,7 +134,9 @@ class RiderEdit extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      rider: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     const { addIf } = this.state;
     return (
@@ -152,7 +145,7 @@ class RiderEdit extends PureComponent {
           <Form style={{ marginTop: 8 }} onSubmit={this.handleSubmit}>
             <FormItem {...formItemLayout} label="骑手编号">
               {getFieldDecorator('id', {
-                initialValue: addIf ? '' : detail.rider_id,
+                initialValue: addIf ? '' : query.rider_id,
                 rules: [
                   {
                     required: true,
@@ -163,7 +156,7 @@ class RiderEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="骑手名字">
               {getFieldDecorator('name', {
-                initialValue: addIf ? '' : detail.rider_name,
+                initialValue: addIf ? undefined : query.rider_name,
                 rules: [
                   {
                     required: true,
@@ -174,7 +167,7 @@ class RiderEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="选择骑手性别">
               {getFieldDecorator('sex', {
-                initialValue: addIf ? '' : detail.rider_sex,
+                initialValue: addIf ? 2 : query.rider_sex,
               })(
                 <Select>
                   <Option value={0}>男</Option>
@@ -185,7 +178,7 @@ class RiderEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="骑手电话">
               {getFieldDecorator('phone', {
-                initialValue: addIf ? '' : detail.rider_phone,
+                initialValue: addIf ? undefined : query.rider_phone,
                 rules: [
                   {
                     required: true,
@@ -196,7 +189,7 @@ class RiderEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="骑手身份证号码">
               {getFieldDecorator('identity_number', {
-                initialValue: addIf ? '' : detail.rider_identity_number,
+                initialValue: addIf ? undefined : query.rider_identity_number,
                 rules: [
                   {
                     required: true,
@@ -207,13 +200,13 @@ class RiderEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="负责楼栋">
               {getFieldDecorator('building_id', {
-                initialValue: addIf ? '' : detail.building_id,
+                initialValue: addIf ? undefined : query.building_id,
               })(<InputNumber />)}
             </FormItem>
 
             <FormItem {...formItemLayout} label="骑手状态">
               {getFieldDecorator('state', {
-                initialValue: addIf ? '' : detail.rider_state,
+                initialValue: addIf ? 1 : query.rider_state,
               })(
                 <Select>
                   <Option value={0}>冻结</Option>

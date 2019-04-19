@@ -47,13 +47,13 @@ class ProductsEdit extends PureComponent {
 
   componentDidMount() {
     const {
-      match: {
-        params: { number, current },
-      },
       dispatch,
+      history: {
+        location: { query },
+      },
     } = this.props;
     const payload = { current: 1, pageSize: 100 };
-    const reg = /^[\d]+$/;
+
     dispatch({
       type: 'products/categoryList',
       payload: {
@@ -63,19 +63,12 @@ class ProductsEdit extends PureComponent {
         ...payload,
       },
     });
-    if (!reg.test(number)) {
+    if (Object.keys(query).length === 0) {
       this.setState({
         addIf: true,
       });
     }
-    if (reg.test(number)) {
-      dispatch({
-        type: 'products/productsDetail',
-        payload: {
-          number,
-          current,
-        },
-      });
+    if (Object.keys(query).length !== 0) {
       this.setState({
         previewVisible: true,
       });
@@ -86,7 +79,9 @@ class ProductsEdit extends PureComponent {
     const {
       dispatch,
       form: { validateFields },
-      products: { detail },
+      history: {
+        location: { query },
+      },
     } = this.props;
     const { ImgUrl } = this.state;
     e.preventDefault();
@@ -94,7 +89,7 @@ class ProductsEdit extends PureComponent {
       // eslint-disable-next-line no-param-reassign
       values.img = ImgUrl;
       if (!err) {
-        if (detail.product_name === values.name) {
+        if (query.product_name === values.name) {
           // eslint-disable-next-line no-param-reassign
           values.name = undefined;
         }
@@ -231,24 +226,29 @@ class ProductsEdit extends PureComponent {
       form: { getFieldDecorator },
       products: {
         list: { list = [] },
-        detail,
+      },
+      history: {
+        location: { query },
       },
     } = this.props;
-    console.log(this.props, 'props');
     const arr = this.handleunique(list);
     const { addIf, previewVisible, ImgUrl, initial } = this.state;
     return (
       <PageHeaderWrapper title="商品信息编辑">
         <Card className={styles.FormTable}>
           <Form style={{ marginTop: 8 }} onSubmit={this.handleSubmit}>
-            <FormItem {...formItemLayout} label="商品编号">
-              {getFieldDecorator('id', {
-                initialValue: addIf ? '' : detail.product_id,
-              })(<InputNumber disabled />)}
-            </FormItem>
+            {addIf ? (
+              ''
+            ) : (
+              <FormItem {...formItemLayout} label="商品编号">
+                {getFieldDecorator('id', {
+                  initialValue: addIf ? undefined : query.product_id,
+                })(<InputNumber disabled />)}
+              </FormItem>
+            )}
             <FormItem {...formItemLayout} label="商品名称">
               {getFieldDecorator('name', {
-                initialValue: addIf ? '' : detail.product_name,
+                initialValue: addIf ? '' : query.product_name,
                 rules: [
                   {
                     required: true,
@@ -259,7 +259,7 @@ class ProductsEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="商品价格">
               {getFieldDecorator('price', {
-                initialValue: addIf ? '' : detail.product_price,
+                initialValue: addIf ? undefined : query.product_price,
                 rules: [
                   {
                     required: true,
@@ -270,7 +270,7 @@ class ProductsEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="商品价格单位">
               {getFieldDecorator('unit', {
-                initialValue: addIf ? '' : detail.product_unit,
+                initialValue: addIf ? undefined : query.product_unit,
                 rules: [
                   {
                     required: true,
@@ -280,9 +280,26 @@ class ProductsEdit extends PureComponent {
               })(<Input placeholder="请输入商品价格单位" />)}
             </FormItem>
 
+            <FormItem {...formItemLayout} label="商品状态">
+              {getFieldDecorator('state', {
+                initialValue: addIf ? 1 : query.product_state,
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入商品状态',
+                  },
+                ],
+              })(
+                <Select>
+                  <Option value={1}>正常</Option>
+                  <Option value={0}>下架</Option>
+                </Select>
+              )}
+            </FormItem>
+
             <FormItem {...formItemLayout} label="选择商品种类">
               {getFieldDecorator('category_id', {
-                initialValue: addIf ? '' : detail.product_category_id,
+                initialValue: addIf ? undefined : query.product_category_id,
                 rules: [
                   {
                     required: true,
@@ -314,7 +331,7 @@ class ProductsEdit extends PureComponent {
                 >
                   {previewVisible ? (
                     <img
-                      src={initial ? detail.product_img : ImgUrl}
+                      src={initial ? query.product_img : ImgUrl}
                       alt="pic"
                       className={styles.pic}
                     />
@@ -326,7 +343,7 @@ class ProductsEdit extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="商品介绍">
               {getFieldDecorator('description', {
-                initialValue: addIf ? '' : detail.product_description,
+                initialValue: addIf ? '' : query.product_description,
               })(<TextArea placeholder="请输入商品介绍" />)}
             </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>

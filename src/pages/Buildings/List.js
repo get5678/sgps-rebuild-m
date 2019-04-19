@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { Row, Col, Form, Card, Button, Input, message } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
@@ -64,6 +64,16 @@ class BuildingsList extends PureComponent {
         },
       });
     });
+  };
+
+  handleEdit = val => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: '/buildings/edit/:number/:current',
+        query: val,
+      })
+    );
   };
 
   handleRouteToEdit = () => {
@@ -164,7 +174,7 @@ class BuildingsList extends PureComponent {
         render: val => {
           return (
             <Fragment>
-              <Link to={`/buildings/edit/${val.building_id}/${current}`}>编辑</Link>
+              <a onClick={this.handleEdit.bind(this, val)}>编辑</a>
             </Fragment>
           );
         },

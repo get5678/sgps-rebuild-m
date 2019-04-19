@@ -161,7 +161,7 @@ class LoginPage extends Component {
         </Form>
 
         <Link to="/user/register">注册</Link>
-        <Button onClick={this.handleLogout}>退出登录</Button>
+        {/* <Button onClick={this.handleLogout}>退出登录</Button> */}
       </div>
     );
   }
